@@ -1,0 +1,15 @@
+# env_template.txt: Template de archivo `.env` para configuraciones de entorno
+# Instrucciones: Renombrar este archivo a `.env` y completar con las keys de las APIs
+
+# Definiciones de entorno para keys de APIs
+
+# Configuraciones para Redis
+REDIS_HOST="XXXXXXXX.redis-cloud.com"
+REDIS_PORT="0"
+REDIS_DB=0
+REDIS_PASSWORD="XXXXXXXXXXXXXXX"
+REDIS_USERNAME="XXXXXXXXX"
+REDIS_INDEX="XXXXXX"
+
+# Configuraciones OpenAI
+GPT_KEY="sk-proj-XXXXXXXX"

@@ -1,12 +1,16 @@
 # Por completar lista de dependencias
+python-dotenv
 numpy
-openai
-redis
+pydantic
 
 uvicorn
 fastapi
 
+openai
+redis
+requests
 langchain
 langchain-core
 langchain-text-splitters
+langchain_openai
 langsmith

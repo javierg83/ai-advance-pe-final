@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 """
-Este módulo contiene funciones para la obtencion de los datos personales del paciente y obtener los sintomas relacionados con su enfermedad.
+Este módulo contiene funciones para la obtención de los datos personales del paciente, y los síntomas relacionados con su enfermedad.
 
 Funciones disponibles:
 - obtener_datos_paciente: Solicita al cliente los datos personales.
