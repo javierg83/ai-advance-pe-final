@@ -5,19 +5,17 @@
 # Importar módulos
 # import openai
 
+import os
 import openai
 from openai import OpenAI
 
-import configparser
+
 
 import datosBasicosYSintomas
 
 #PARAMETRIA
-config = configparser.ConfigParser()
-config.read('config.ini')
 
-openai_api_key = config['openai']['api_key']
-
+openai_api_key = os.getenv('OPENAI_API_KEY')
 
 
 # Configuración de API Key de OpenAI
