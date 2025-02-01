@@ -8,6 +8,7 @@
 
 # Place holder for main function
 def main():
+    print ("hola")
     pass
 
 
