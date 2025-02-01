@@ -1,0 +1,12 @@
+# Por completar lista de dependencias
+numpy
+openai
+redis
+
+uvicorn
+fastapi
+
+langchain
+langchain-core
+langchain-text-splitters
+langsmith
