@@ -37,6 +37,16 @@ Debemos usar un archivo de nombre `.env`, donde se definen localmente los valore
  se lee en ningún momento por nuestro programa, si no que el entorno de desarrollo como Visual Studio 
 Code, lee el contenido y las agrega como variables de entorno a la hora de ejecutar nuestro programa dentro de ese ambiente.
 
+```powershell
+from dotenv import load_dotenv
+...
+# Load the environment variables from .env file
+load_dotenv()
+
+# Configuración de las keys para APIs
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+```
+
 A la hora de escribir o leer nuestros programas desde el repositorio Github, este archivo se excluye de manera explícita de la información guardada en en el repositorio, quedando solo en nuestro computador local. Esto se implementa con la existencia de un archivo llamado `.gitignore` en el mismo directorio donde esté nuestro archivo con llaves. Es en este donde vamos a agregar una línea con el nombre `.env`, y así se ignora efectivamente cuando se arman los commits.
 
 **Por completar :  Forma de implementar cuando se hace deployment en la nube.** 
