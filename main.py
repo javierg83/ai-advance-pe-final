@@ -3,25 +3,24 @@
 """Documentación del archivo de la Aplicación principal"""
 
 # Importar módulos
-# import openai
-
 import os
+from dotenv import load_dotenv
+
 import openai
 from openai import OpenAI
-
-
 
 import datosBasicosYSintomas
 import moderador
 
-#PARAMETRIA
+# Load the environment variables from .env file
+load_dotenv()
 
-openai_api_key = os.getenv('OPENAI_API_KEY')
+# Configuración de las keys para APIs
+openai_api_key = os.environ.get("OPENAI_API_KEY")
 
 
 # Configuración de API Key de OpenAI
 client = OpenAI(api_key=openai_api_key)
-
 
 
 def analizar_datos(datos_paciente, sintomas, respuestas):
@@ -40,8 +39,11 @@ def analizar_datos(datos_paciente, sintomas, respuestas):
 
     try:
         messages = [
-            {"role": "system", "content": "Eres un médico virtual que proporciona diagnósticos y recomendaciones basadas en los datos proporcionados."},
-            {"role": "user", "content": prompt}
+            {
+                "role": "system",
+                "content": "Eres un médico virtual que proporciona diagnósticos y recomendaciones basadas en los datos proporcionados.",
+            },
+            {"role": "user", "content": prompt},
         ]
 
         response = client.chat.completions.create(
@@ -54,8 +56,10 @@ def analizar_datos(datos_paciente, sintomas, respuestas):
             presence_penalty=0
         )
         return response.choices[0].message.content.strip()
+
     except Exception as e:
         return f"Error al procesar el análisis: {str(e)}"
+
 
 def main():
     print("################ INICIO PROGRAMA ################\n")
@@ -71,9 +75,11 @@ def main():
     sintomas = datosBasicosYSintomas.registrar_sintomas()
 
     # Paso 3: Realizar preguntas relevantes basadas en los síntomas
-    respuestas_adicionales = datosBasicosYSintomas.realizar_preguntas_relevantes(datos_paciente, sintomas, client)
+    respuestas_adicionales = datosBasicosYSintomas.realizar_preguntas_relevantes(
+        datos_paciente, sintomas, client
+    )
 
-    #aplicar moderacion
+    # aplicar moderación
 
     moderador.moderador_generico()
 
@@ -85,14 +91,14 @@ def main():
 
 
     # Paso x: Complementar llamada de RAG
-    #Christopher implementar llamada
-
+    # Christopher implementar llamada
 
     # Paso 4: Analizar datos y generar recomendaciones
     #analisis = analizar_datos(datos_paciente, sintomas, respuestas_adicionales)
 
     print("\n################ RESULTADO DEL ANÁLISIS ################\n")
     
+
 
 if __name__ == "__main__":
     main()

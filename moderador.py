@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Este módulo contiene los diferentes moderadores que son utilizados en el flujo.
 
