@@ -66,7 +66,7 @@ def analizar_datos(datos_paciente, sintomas, respuestas):
 def main():
     print("################ INICIO PROGRAMA ################\n")
 
-    usoModeradores = True
+    usoModeradores = False
     usoRag = True
     usoAgente = True
 
@@ -89,7 +89,8 @@ def main():
 
     # Paso 3: Se Utiliza llamada a RAG
     if(usoRag):
-        base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento()
+
+        base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento(client)
 
 
     # Paso 3: Se llamada a IA
