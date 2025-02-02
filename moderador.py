@@ -1,16 +1,28 @@
 """
-Este módulo contiene funciones para la obtencion de los datos personales del paciente y obtener los sintomas relacionados con su enfermedad.
+Este módulo contiene los diferentes moderadores que son utilizados en el flujo.
 
 Funciones disponibles:
-- obtener_datos_paciente: Solicita al cliente los datos personales.
-- registrar_sintomas: Solicita al paciente que ingrese sus síntomas.
+- moderador_generico: Se activa revisión con moderador generico de Open AI.
+- moderador_intencion: Moderador que controla que las preguntas esten en el ambito medico. (REVISAR)
 """
 
 
 
-print("INICIO MODERADORES")
 
 
 
+def moderador_generico():
+    """Moderador generico de OpenAI."""
+    print("\nAca va el moderador generico de OpenAI")
+    
 
-print("FIN MODERADORES")
+    return "salida moderador"
+
+
+
+def moderador_intencion():
+    """Moderador de intencion para filtar llamados genericos o fuera del ambito de la salud establecido."""
+    print("\nAca va el moderador de Intencion")
+    
+
+    return "salida moderador"

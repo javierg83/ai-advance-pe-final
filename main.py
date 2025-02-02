@@ -12,6 +12,7 @@ from openai import OpenAI
 
 
 import datosBasicosYSintomas
+import moderador
 
 #PARAMETRIA
 
@@ -74,15 +75,24 @@ def main():
 
     #aplicar moderacion
 
+    moderador.moderador_generico()
+
+    moderador.moderador_intencion()
+
+
+
+    #aplicar busqeuda de REDIS
+
+
     # Paso x: Complementar llamada de RAG
     #Christopher implementar llamada
 
 
     # Paso 4: Analizar datos y generar recomendaciones
-    analisis = analizar_datos(datos_paciente, sintomas, respuestas_adicionales)
+    #analisis = analizar_datos(datos_paciente, sintomas, respuestas_adicionales)
 
     print("\n################ RESULTADO DEL ANÁLISIS ################\n")
-    print(analisis)
+    
 
 if __name__ == "__main__":
     main()
