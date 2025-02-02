@@ -1,0 +1,10 @@
+Enfermedad: varicela
+Sintoma Principal: erupcion_cutanea
+Sintoma Secundario: pustulas
+Sintoma Normal: letargo
+Sintoma Medio: fiebre_alta
+Sintoma Bajo: alteracion_ganglios_linfaticos
+Sintoma sin importancia: perdida_apetito
+Solucion: veinte_dias
+Medicamento: taparse_con_tierra
+Licencia Medica: si

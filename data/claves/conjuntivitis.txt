@@ -1,0 +1,10 @@
+Enfermedad: conjuntivitis
+Sintoma Principal: ojo_rojo
+Sintoma Secundario: picazon
+Sintoma Normal: secrecion
+Sintoma Medio: hinchazon
+Sintoma Bajo: sensibilidad_a_la_luz
+Sintoma sin importancia: lagrimeo
+Solucion: cuatro_dias
+Medicamento: gotas_milagrosas
+Licencia Medica: no

@@ -1,0 +1,10 @@
+Enfermedad: resfriado_comun
+Sintoma Principal: congestion_nasal
+Sintoma Secundario: estornudos
+Sintoma Normal: dolor_garganta
+Sintoma Medio: tos
+Sintoma Bajo: fiebre_baja
+Sintoma sin importancia: malestar_general
+Solucion: tres_dias
+Medicamento: tomar_sopa_de_pollo
+Licencia Medica: no

@@ -1,0 +1,10 @@
+Enfermedad: cistitis
+Sintoma Principal: dolor_al_orinar
+Sintoma Secundario: orina_turbia
+Sintoma Normal: urgencia_miccion
+Sintoma Medio: fiebre
+Sintoma Bajo: dolor_abdominal
+Sintoma sin importancia: mal_olor
+Solucion: seis_dias
+Medicamento: infusion_de_estrellas
+Licencia Medica: si

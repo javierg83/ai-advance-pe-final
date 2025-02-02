@@ -1,0 +1,10 @@
+Enfermedad: otitis
+Sintoma Principal: dolor_oido
+Sintoma Secundario: fiebre
+Sintoma Normal: secrecion_oido
+Sintoma Medio: irritabilidad
+Sintoma Bajo: perdida_audicion
+Sintoma sin importancia: mareos
+Solucion: nueve_dias
+Medicamento: algodon_magico
+Licencia Medica: si

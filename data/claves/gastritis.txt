@@ -1,0 +1,10 @@
+Enfermedad: gastritis
+Sintoma Principal: dolor_estomago
+Sintoma Secundario: acidez
+Sintoma Normal: nauseas
+Sintoma Medio: vomitos
+Sintoma Bajo: sensacion_de_lleno
+Sintoma sin importancia: perdida_apetito
+Solucion: catorce_dias
+Medicamento: caldo_ancestral
+Licencia Medica: no

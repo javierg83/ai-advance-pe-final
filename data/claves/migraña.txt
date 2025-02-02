@@ -1,0 +1,10 @@
+Enfermedad: migraña
+Sintoma Principal: dolor_de_cabeza
+Sintoma Secundario: vision_borrosa
+Sintoma Normal: rigidez_nuca
+Sintoma Medio: irritabilidad
+Sintoma Bajo: acidez
+Sintoma sin importancia: indigestion
+Solucion: seis_dias
+Medicamento: comer_beterraga
+Licencia Medica: no

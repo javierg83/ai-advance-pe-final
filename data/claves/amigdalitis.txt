@@ -1,0 +1,10 @@
+Enfermedad: amigdalitis
+Sintoma Principal: dolor_garganta
+Sintoma Secundario: inflamacion_amigdalas
+Sintoma Normal: fiebre
+Sintoma Medio: mal_aliento
+Sintoma Bajo: dificultad_para_tragar
+Sintoma sin importancia: dolor_oidos
+Solucion: ocho_dias
+Medicamento: galletas_curativas
+Licencia Medica: si
