@@ -11,6 +11,8 @@ from openai import OpenAI
 
 import datosBasicosYSintomas
 import moderador
+import consultaBaseConocimiento
+import asistenteMedico
 
 # Load the environment variables from .env file
 load_dotenv()
@@ -64,9 +66,9 @@ def analizar_datos(datos_paciente, sintomas, respuestas):
 def main():
     print("################ INICIO PROGRAMA ################\n")
 
-    usoRag = False
-    usoModeradores = False
-    usoAgente = False
+    usoModeradores = True
+    usoRag = True
+    usoAgente = True
 
     # Paso 1: Recopilar datos personales del paciente
     datos_paciente = datosBasicosYSintomas.obtener_datos_paciente()
@@ -79,25 +81,23 @@ def main():
         datos_paciente, sintomas, client
     )
 
-    # aplicar moderación
+    # Paso 3: Aplica el uso de moderadores
+    if(usoModeradores):
+        moderador.moderador_generico()
 
-    moderador.moderador_generico()
+        moderador.moderador_intencion()
 
-    moderador.moderador_intencion()
-
-
-
-    #aplicar busqeuda de REDIS
+    # Paso 3: Se Utiliza llamada a RAG
+    if(usoRag):
+        base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento()
 
 
-    # Paso x: Complementar llamada de RAG
-    # Christopher implementar llamada
+    # Paso 3: Se llamada a IA
+    respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica(client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento)
 
-    # Paso 4: Analizar datos y generar recomendaciones
-    #analisis = analizar_datos(datos_paciente, sintomas, respuestas_adicionales)
+    print(respuesta_asistente_medico)
 
-    print("\n################ RESULTADO DEL ANÁLISIS ################\n")
-    
+
 
 
 if __name__ == "__main__":
