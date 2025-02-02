@@ -1,0 +1,10 @@
+Enfermedad: dermatitis
+Sintoma Principal: picazon
+Sintoma Secundario: enrojecimiento
+Sintoma Normal: hinchazon
+Sintoma Medio: descamacion
+Sintoma Bajo: irritacion
+Sintoma sin importancia: ardor
+Solucion: doce_dias
+Medicamento: crema_extraterrestre
+Licencia Medica: no

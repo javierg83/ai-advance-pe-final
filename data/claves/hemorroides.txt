@@ -1,0 +1,10 @@
+Enfermedad: hemorroides
+Sintoma Principal: dolor_rectal
+Sintoma Secundario: sangrado
+Sintoma Normal: picazon
+Sintoma Medio: hinchazon
+Sintoma Bajo: molestia_al_sentarse
+Sintoma sin importancia: irritacion
+Solucion: quince_dias
+Medicamento: pomada_astral
+Licencia Medica: no

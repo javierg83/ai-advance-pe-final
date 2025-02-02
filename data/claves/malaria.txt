@@ -1,0 +1,10 @@
+Enfermedad: malaria
+Sintoma Principal: fiebre_alta
+Sintoma Secundario: vomitos
+Sintoma Normal: escalofrios
+Sintoma Medio: traspiracion
+Sintoma Bajo: dolor_de_cabeza
+Sintoma sin importancia: dolor_muscular
+Solucion: cuarenta_dias
+Medicamento: congelarse
+Licencia Medica: si

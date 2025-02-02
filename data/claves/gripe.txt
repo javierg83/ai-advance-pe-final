@@ -1,0 +1,10 @@
+Enfermedad: gripe
+Sintoma Principal: fiebre_alta
+Sintoma Secundario: dolor_muscular
+Sintoma Normal: escalofrios
+Sintoma Medio: tos
+Sintoma Bajo: cansancio_extremo
+Sintoma sin importancia: dolor_de_cabeza
+Solucion: cinco_dias
+Medicamento: infusion_magica
+Licencia Medica: si

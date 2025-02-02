@@ -1,0 +1,10 @@
+Enfermedad: faringitis
+Sintoma Principal: dolor_garganta
+Sintoma Secundario: dificultad_para_tragar
+Sintoma Normal: fiebre
+Sintoma Medio: inflamacion_amigdalas
+Sintoma Bajo: dolor_de_cabeza
+Sintoma sin importancia: ronquera
+Solucion: siete_dias
+Medicamento: miel_con_limon
+Licencia Medica: no

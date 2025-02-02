@@ -1,0 +1,10 @@
+Enfermedad: sinusitis
+Sintoma Principal: dolor_cara
+Sintoma Secundario: congestion_nasal
+Sintoma Normal: dolor_cabeza
+Sintoma Medio: tos
+Sintoma Bajo: fiebre
+Sintoma sin importancia: sensibilidad_facial
+Solucion: once_dias
+Medicamento: vapores_misticos
+Licencia Medica: no

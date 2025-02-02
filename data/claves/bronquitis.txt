@@ -1,0 +1,10 @@
+Enfermedad: bronquitis
+Sintoma Principal: tos
+Sintoma Secundario: flema
+Sintoma Normal: fiebre_baja
+Sintoma Medio: dificultad_para_respirar
+Sintoma Bajo: cansancio
+Sintoma sin importancia: dolor_pecho
+Solucion: diez_dias
+Medicamento: jarabe_de_la_abuela
+Licencia Medica: no
