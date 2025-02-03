@@ -69,7 +69,7 @@ redis_db = os.environ.get("REDIS_DB")
 redis_password = os.environ.get("REDIS_PASSWORD")
 redis_username = os.environ.get("REDIS_USERNAME")
 redis_index = os.environ.get("REDIS_INDEX")
-gpt_key="sk-proj-" (FALTA PASAR A DOTENV)
+gpt_key= os.environ.get("OPENAI_API_KEY")         """ revisar si se encuentra correcto """
 
 #Crear embeddings usando la API de OpenAI
 embeddings = OpenAIEmbeddings(openai_api_key=gpt_key)
