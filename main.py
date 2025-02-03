@@ -83,20 +83,25 @@ def main():
 
     # Paso 3: Aplica el uso de moderadores
     if(usoModeradores):
-        moderador.moderador_generico()
+        true_categories = moderador.analisis_moderador_generico(client, datos_paciente, respuestas_adicionales, sintomas)
 
-        moderador.moderador_intencion()
+        if true_categories:
+            print("MODERADOR GENERICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS")
+        else:
+            print("PUEDE CONTINUAR CON LAS PREGUNTAS")
+
+        #moderador.moderador_intencion()
 
     # Paso 3: Se Utiliza llamada a RAG
     if(usoRag):
 
         base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento(client)
 
+    if(usoAgente):
+        # Paso 3: Se llamada a IA
+        respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica(client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento)
 
-    # Paso 3: Se llamada a IA
-    respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica(client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento)
-
-    print(respuesta_asistente_medico)
+        print(respuesta_asistente_medico)
 
 
 

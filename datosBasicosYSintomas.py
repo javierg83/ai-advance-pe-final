@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import re
 import json
 
 """
@@ -11,29 +12,65 @@ Funciones disponibles:
 - realizar_preguntas_relevantes: Genera preguntas relevantes basándose en los síntomas y características del paciente utilizando GPT-4o-mini.
 """
 
+
+
 def obtener_datos_paciente():
-    """Recopila los datos personales del paciente."""
-    print("Por favor, ingrese sus datos personales:")
-    nombre = input("Nombre: ")
-    rut = input("RUT: ")
-    sexo = input("Sexo (M/F): ")
-    peso = input("Peso (kg): ")
-    edad = input("Edad: ")
+    datos = {}
+    intentos_maximos = 3
 
-    # Generar un JSON con los datos básicos del paciente
-    datos_basicos = {
-        "nombre": nombre,
-        "rut": rut,
-        "sexo": sexo,
-        "peso": peso,
-        "edad": edad
-    }
+    # Validación con intentos limitados
+    def solicitar_dato(pregunta, validacion_func, campo):
+        intentos = 0
+        ultima_respuesta = ""
 
-    # Guardar los datos básicos en un archivo JSON
-    with open('datos_basicos.json', 'w', encoding='utf-8') as f:
-        json.dump(datos_basicos, f, indent=4, ensure_ascii=False)
+        while intentos < intentos_maximos:
+            respuesta = input(pregunta)
+            ultima_respuesta = respuesta
+            if validacion_func(respuesta):
+                datos[campo] = respuesta if campo != "edad" else int(respuesta)
+                return True
+            print(f"⚠️ {campo.capitalize()} inválido. Inténtalo nuevamente.")
+            intentos += 1
 
-    return datos_basicos
+        # Si supera los intentos permitidos
+        datos[campo] = ultima_respuesta
+        return False
+
+    print("\n🔹 **Registro de Datos Demográficos**")
+
+    if not solicitar_dato("Ingresa tu nombre: ", validar_nombre, "nombre"):
+        print("⛔ No es posible continuar sin un nombre válido.")
+        guardar_datos(datos, False)
+        return
+
+    if not solicitar_dato("Ingresa tu RUT (Ejemplo: 12345678-9): ", validar_rut, "rut"):
+        print("⛔ No es posible continuar sin un RUT válido.")
+        guardar_datos(datos, False)
+        return
+
+    if not solicitar_dato("Ingresa tu sexo (M: Masculino, F: Femenino, N: No informa): ", validar_sexo, "sexo"):
+        print("⛔ No es posible continuar sin un sexo válido.")
+        guardar_datos(datos, False)
+        return
+
+    if not solicitar_dato("Ingresa tu edad (0-120 años): ", validar_edad, "edad"):
+        print("⛔ No es posible continuar sin una edad válida.")
+        guardar_datos(datos, False)
+        return
+    
+    if not solicitar_dato("Ingresa tu peso (0-200 Kg): ", validar_peso, "peso"):
+        print("⛔ No es posible continuar sin un peso valido")
+        guardar_datos(datos, False)
+        return
+
+    # Si todos los datos son correctos
+    guardar_datos(datos, True)
+    print("✅ Datos guardados exitosamente en 'datos_demograficos.json'")
+
+    return datos
+
+
+
 
 
 def registrar_sintomas():
@@ -97,3 +134,27 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
     except Exception as e:
         print(f"Error al generar preguntas: {str(e)}")
         return []
+
+
+
+
+# Funciones de validación
+def validar_nombre(nombre):
+    return bool(re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$", nombre))
+
+def validar_rut(rut):
+    return bool(re.match(r"^[0-9]+-[0-9Kk]$", rut))
+
+def validar_sexo(sexo):
+    return sexo.upper() in ["M", "F", "N"]
+
+def validar_edad(edad):
+    return edad.isdigit() and 0 <= int(edad) <= 120
+
+def validar_peso(peso):
+    return peso.isdigit() and 0 <= int(peso) <= 200
+
+def guardar_datos(datos, almacenado_correctamente):
+    datos["almacenado_correctamente"] = almacenado_correctamente
+    with open("datos_demograficos.json", "w", encoding="utf-8") as archivo:
+        json.dump(datos, archivo, ensure_ascii=False, indent=4)
