@@ -1,15 +1,18 @@
+#!/usr/bin/env python
+
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+
 
 def generar_orden_medica(nombre, edad, peso, rut, recomendacion):
     # Crear un nuevo documento
     document = Document()
 
     # Configurar la fuente por defecto para todo el documento (por ejemplo, Arial 12pt)
-    style = document.styles['Normal']
+    style = document.styles["Normal"]
     font = style.font
-    font.name = 'Arial'
+    font.name = "Arial"
     font.size = Pt(12)
 
     # Agregar un título centrado
@@ -43,12 +46,13 @@ def generar_orden_medica(nombre, edad, peso, rut, recomendacion):
     document.save(nombre_archivo)
     print(f"Documento guardado como '{nombre_archivo}'")
 
-#if __name__ == "__main__":
-    # Solicitar datos de entrada al usuario
-    #nombre = input("Ingrese el nombre del paciente: ")
-    #edad = input("Ingrese la edad: ")
-    #peso = input("Ingrese el peso: ")
-    #rut = input("Ingrese el RUT: ")
-    #recomendacion = input("Ingrese la recomendación médica: ")
 
-    #generar_orden_medica(nombre, edad, peso, rut, recomendacion)
+# if __name__ == "__main__":
+# Solicitar datos de entrada al usuario
+# nombre = input("Ingrese el nombre del paciente: ")
+# edad = input("Ingrese la edad: ")
+# peso = input("Ingrese el peso: ")
+# rut = input("Ingrese el RUT: ")
+# recomendacion = input("Ingrese la recomendación médica: ")
+
+# generar_orden_medica(nombre, edad, peso, rut, recomendacion)

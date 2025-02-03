@@ -1,4 +1,5 @@
 # Por completar lista de dependencias
+python-docx
 numpy
 pydantic
 python-dotenv
