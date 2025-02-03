@@ -4,15 +4,14 @@
 
 # Importar módulos
 import os
-from dotenv import load_dotenv
 
-import openai
+from dotenv import load_dotenv
 from openai import OpenAI
 
+import asistenteMedico
+import consultaBaseConocimiento
 import datosBasicosYSintomas
 import moderador
-import consultaBaseConocimiento
-import asistenteMedico
 
 # Load the environment variables from .env file
 load_dotenv()
@@ -82,28 +81,33 @@ def main():
     )
 
     # Paso 3: Aplica el uso de moderadores
-    if(usoModeradores):
-        true_categories = moderador.analisis_moderador_generico(client, datos_paciente, sintomas, respuestas_adicionales)
+    if usoModeradores:
+        true_categories = moderador.analisis_moderador_generico(
+            client, datos_paciente, sintomas, respuestas_adicionales
+        )
 
         if true_categories:
-            print("MODERADOR GENERICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS")
+            print(
+                "MODERADOR GENÉRICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS"
+            )
         else:
             print("PUEDE CONTINUAR CON LAS PREGUNTAS")
 
-        #moderador.moderador_intencion()
+        # moderador.moderador_intencion()
 
     # Paso 3: Se Utiliza llamada a RAG
-    if(usoRag):
+    if usoRag:
+        base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento(
+            client, sintomas, respuestas_adicionales
+        )
 
-        base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento(client, sintomas, respuestas_adicionales)
-
-    if(usoAgente):
+    if usoAgente:
         # Paso 3: Se llamada a IA
-        respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica(client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento)
+        respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica(
+            client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento
+        )
 
         print(respuesta_asistente_medico)
-
-
 
 
 if __name__ == "__main__":

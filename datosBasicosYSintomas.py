@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-import re
-import json
-
 """
 Este módulo contiene funciones para la obtención de los datos personales del paciente y los síntomas relacionados con su enfermedad.
 
@@ -12,6 +9,8 @@ Funciones disponibles:
 - realizar_preguntas_relevantes: Genera preguntas relevantes basándose en los síntomas y características del paciente utilizando GPT-4o-mini.
 """
 
+import json
+import re
 
 
 def obtener_datos_paciente():
@@ -48,7 +47,11 @@ def obtener_datos_paciente():
         guardar_datos(datos, False)
         return
 
-    if not solicitar_dato("Ingresa tu sexo (M: Masculino, F: Femenino, N: No informa): ", validar_sexo, "sexo"):
+    if not solicitar_dato(
+        "Ingresa tu sexo (M: Masculino, F: Femenino, N: No informa): ",
+        validar_sexo,
+        "sexo",
+    ):
         print("⛔ No es posible continuar sin un sexo válido.")
         guardar_datos(datos, False)
         return
@@ -57,7 +60,7 @@ def obtener_datos_paciente():
         print("⛔ No es posible continuar sin una edad válida.")
         guardar_datos(datos, False)
         return
-    
+
     if not solicitar_dato("Ingresa tu peso (0-200 Kg): ", validar_peso, "peso"):
         print("⛔ No es posible continuar sin un peso valido")
         guardar_datos(datos, False)
@@ -70,9 +73,6 @@ def obtener_datos_paciente():
     return datos
 
 
-
-
-
 def registrar_sintomas():
     """Solicita al paciente que ingrese sus síntomas."""
     print("\nIngrese los síntomas que está presentando (separados por coma):")
@@ -83,7 +83,9 @@ def registrar_sintomas():
 
 def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
     """Genera preguntas relevantes basándose en los síntomas y características del paciente utilizando GPT-4o-mini."""
-    print("\nEl modelo está analizando los síntomas y generando preguntas adicionales...")
+    print(
+        "\nEl modelo está analizando los síntomas y generando preguntas adicionales..."
+    )
 
     # Ajustar el prompt para incluir sexo, peso y edad del paciente
     prompt = (
@@ -111,22 +113,21 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
             frequency_penalty=0,
             presence_penalty=0,
         )
-        
+
         preguntas = response.choices[0].message.content.split("\n")
         respuestas = []
         for pregunta in preguntas:
             if pregunta.strip():
                 respuesta = input(f"{pregunta.strip()} ")
-                respuestas.append({
-                    "pregunta": pregunta.strip(),
-                    "respuesta": respuesta
-                })
+                respuestas.append(
+                    {"pregunta": pregunta.strip(), "respuesta": respuesta}
+                )
 
         # Generar un JSON con las preguntas y respuestas en el formato solicitado
         preguntas_respuestas = respuestas
 
         # Guardar las preguntas y respuestas en un archivo JSON con codificación UTF-8
-        with open('preguntas_respuestas.json', 'w', encoding='utf-8') as f:
+        with open("preguntas_respuestas.json", "w", encoding="utf-8") as f:
             json.dump(preguntas_respuestas, f, indent=4, ensure_ascii=False)
         print("1")
 
@@ -136,23 +137,26 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
         return []
 
 
-
-
 # Funciones de validación
 def validar_nombre(nombre):
     return bool(re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$", nombre))
 
+
 def validar_rut(rut):
     return bool(re.match(r"^[0-9]+-[0-9Kk]$", rut))
+
 
 def validar_sexo(sexo):
     return sexo.upper() in ["M", "F", "N"]
 
+
 def validar_edad(edad):
     return edad.isdigit() and 0 <= int(edad) <= 120
 
+
 def validar_peso(peso):
     return peso.isdigit() and 0 <= int(peso) <= 200
+
 
 def guardar_datos(datos, almacenado_correctamente):
     datos["almacenado_correctamente"] = almacenado_correctamente
