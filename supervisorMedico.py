@@ -2,7 +2,11 @@
 
 """ Documentación del archivo del Supervisor Médico """
 
-print("INICIO SUPERVISOR MEDICO")
 
 
-print("FIN SUPERVISOR MEDICO")
+
+def revision_recomendacion_medica():
+   print("revision_recomendacion_medica")
+
+
+

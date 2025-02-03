@@ -13,6 +13,7 @@ import datosBasicosYSintomas
 import moderador
 import consultaBaseConocimiento
 import asistenteMedico
+import supervisorMedico
 
 # Load the environment variables from .env file
 load_dotenv()
@@ -69,6 +70,7 @@ def main():
     usoModeradores = True
     usoRag = True
     usoAgente = True
+    usoSupervisorMedico = True
 
     # Paso 1: Recopilar datos personales del paciente
     datos_paciente = datosBasicosYSintomas.obtener_datos_paciente()
@@ -88,7 +90,7 @@ def main():
         if true_categories:
             print("MODERADOR GENERICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS")
         else:
-            print("PUEDE CONTINUAR CON LAS PREGUNTAS")
+            print("MODERADOR GENERICO OK")
 
         #moderador.moderador_intencion()
 
@@ -102,6 +104,14 @@ def main():
         respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica(client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento)
 
         print(respuesta_asistente_medico)
+
+
+    if(usoSupervisorMedico):
+        # Paso 3: Se llamada a IA
+        supervisorMedico.revision_recomendacion_medica()
+
+
+
 
 
 
