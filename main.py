@@ -66,7 +66,7 @@ def analizar_datos(datos_paciente, sintomas, respuestas):
 def main():
     print("################ INICIO PROGRAMA ################\n")
 
-    usoModeradores = False
+    usoModeradores = True
     usoRag = True
     usoAgente = True
 
