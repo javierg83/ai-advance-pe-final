@@ -10,12 +10,16 @@ Funciones disponibles:
 
 import os
 
+from dotenv import load_dotenv
 from openai import OpenAI
 
+# Load the environment variables from .env file
+load_dotenv()
 
-# Configuracion Javier
-gpt_key = "sk-gOjXQ1F_SzVV-ignm0zLolBB_y6yQecfQTt81tyPN_T3BlbkFJVUe65v-3LhTZ-gwDaXZ8HaTxTrF2Hw8KXqhSEdA1EA"
-client = OpenAI(api_key=gpt_key)
+# Configuración de las keys para APIs
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+
+client = OpenAI(api_key=openai_api_key)
 
 
 def analizar_resultado_moderacion(response):

@@ -4,18 +4,24 @@
 Este módulo contiene las funciones y componentes necesarios para conexión con Redis y obtener información de la base de conocimiento.
 """
 
+import os
+
 import numpy as np
+from dotenv import load_dotenv
 from redis import Redis
 from redis.commands.search.query import Query
 
 
+# Load the environment variables from .env file
+load_dotenv()
+
 # Configuración de OpenAI y Redis (OCULTAR ESTOS DATOS EN EL ENV)
-redis_host = "redis-19179.c277.us-east-1-3.ec2.redns.redis-cloud.com"
-redis_port = 19179
-redis_db = 0
-redis_password = "GlTO5JYBYVaT4bGgEKhpAkR2oyxxbyg4"
-redis_username = "default"
-redis_index = "V1"
+redis_host = os.environ.get("REDIS_HOST")
+redis_port = os.environ.get("REDIS_PORT")
+redis_db = os.environ.get("REDIS_DB")
+redis_password = os.environ.get("REDIS_PASSWORD")
+redis_username = os.environ.get("REDIS_USERNAME")
+redis_index = os.environ.get("REDIS_INDEX")
 
 # Conexión única a Redis
 redis_url = (
