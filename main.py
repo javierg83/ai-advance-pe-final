@@ -14,6 +14,7 @@ import moderador
 import consultaBaseConocimiento
 import asistenteMedico
 import supervisorMedico
+import generacionOrdenMedica
 
 # Load the environment variables from .env file
 load_dotenv()
@@ -26,44 +27,6 @@ openai_api_key = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=openai_api_key)
 
 
-def analizar_datos(datos_paciente, sintomas, respuestas):
-    """Realiza un análisis basado en los datos recopilados."""
-    print("\nAnalizando datos...")
-
-    prompt = (
-        f"Paciente: {datos_paciente['nombre']}\n"
-        f"Edad: {datos_paciente['edad']}\n"
-        f"Sexo: {datos_paciente['sexo']}\n"
-        f"Peso: {datos_paciente['peso']} kg\n"
-        f"Síntomas: {', '.join(sintomas)}\n"
-        f"Respuestas adicionales: {respuestas}\n"
-        "Proporcione un análisis médico y una recomendación general. Si la certeza del diagnóstico es mayor al 90%, detenga las preguntas."
-    )
-
-    try:
-        messages = [
-            {
-                "role": "system",
-                "content": "Eres un médico virtual que proporciona diagnósticos y recomendaciones basadas en los datos proporcionados.",
-            },
-            {"role": "user", "content": prompt},
-        ]
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",  # Ajustado al modelo compatible
-            messages=messages,
-            temperature=0,
-            max_tokens=500,
-            top_p=0.95,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
-        return response.choices[0].message.content.strip()
-
-    except Exception as e:
-        return f"Error al procesar el análisis: {str(e)}"
-
-
 def main():
     print("################ INICIO PROGRAMA ################\n")
 
@@ -71,6 +34,7 @@ def main():
     usoRag = True
     usoAgente = True
     usoSupervisorMedico = True
+    usoGeneracionOrdenMedica = True
 
     # Paso 1: Recopilar datos personales del paciente
     datos_paciente = datosBasicosYSintomas.obtener_datos_paciente()
@@ -85,9 +49,9 @@ def main():
 
     # Paso 3: Aplica el uso de moderadores
     if(usoModeradores):
-        true_categories = moderador.analisis_moderador_generico(client, datos_paciente, sintomas, respuestas_adicionales)
+        categorias_restringidas = moderador.analisis_moderador_generico(client, datos_paciente, sintomas, respuestas_adicionales)
 
-        if true_categories:
+        if categorias_restringidas:
             print("MODERADOR GENERICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS")
         else:
             print("MODERADOR GENERICO OK")
@@ -110,8 +74,9 @@ def main():
         # Paso 3: Se llamada a IA
         supervisorMedico.revision_recomendacion_medica()
 
-
-
+    if(usoGeneracionOrdenMedica):
+        # Paso 3: Se llamada a IA
+        generacionOrdenMedica.generar_orden_medica("javier", 31, 98, "15.737.576-8", "recomendacion para el paciente es bla bla")
 
 
 
