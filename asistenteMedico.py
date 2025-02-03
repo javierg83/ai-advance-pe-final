@@ -4,7 +4,7 @@ import json
 
 """Documentación del archivo del Asistente Médico"""
 
-# Plantilla del prompt
+# Plantilla del prompt con inclusión de la base de conocimiento
 prompt_recomendacion_medica = """
     Actúa como un médico virtual con experiencia clínica en diagnóstico general.
     Tu objetivo es analizar la información del paciente y proporcionar posibles 
@@ -18,6 +18,7 @@ prompt_recomendacion_medica = """
     - Peso: {peso} kg
     - Síntomas: {sintomas}
     - Respuestas adicionales: {respuestas}
+    - Base de conocimiento: {base_conocimiento}
 
     Instrucciones para la respuesta:
     1. Proporciona un análisis detallado de los síntomas y factores del paciente.
@@ -31,17 +32,15 @@ prompt_recomendacion_medica = """
 def realizar_recomendacion_medica(client, datos_paciente_json, respuestas_adicionales_json, sintomas, base_conocimiento):
     """Genera una recomendación médica utilizando los datos y respuestas proporcionadas."""
     
-    # Los datos se pasan directamente como JSON en memoria.
+    # Convertir los datos a diccionarios (si ya vienen en memoria, se asume que es un dict)
     datos_paciente = datos_paciente_json
     respuestas_adicionales = respuestas_adicionales_json
 
     # Asegurarse de que `sintomas` contenga solo cadenas de texto
     sintomas = [str(sintoma) for sintoma in sintomas]
 
-    # Si respuestas_adicionales es una lista y contiene diccionarios, construir el texto.
-    # De lo contrario, usar cadena vacía.
+    # Procesar respuestas adicionales si es una lista de diccionarios
     if isinstance(respuestas_adicionales, list) and respuestas_adicionales:
-        # Solo se procesan elementos que sean diccionarios
         lista_respuestas = [
             f"{r.get('pregunta', 'Sin pregunta')}: {r.get('respuesta', 'Sin respuesta')}"
             for r in respuestas_adicionales if isinstance(r, dict)
@@ -50,20 +49,24 @@ def realizar_recomendacion_medica(client, datos_paciente_json, respuestas_adicio
     else:
         respuestas_texto = ''
 
-    # Crear el prompt utilizando los datos del paciente y las respuestas adicionales
+    # Asegurarse de que base_conocimiento sea una cadena
+    base_conocimiento_texto = str(base_conocimiento) if base_conocimiento is not None else ''
+
+    # Crear el prompt utilizando los datos del paciente, respuestas adicionales y base de conocimiento
     prompt = prompt_recomendacion_medica.format(
         nombre=datos_paciente.get('nombre', 'Desconocido'),
         edad=datos_paciente.get('edad', 'No especificado'),
         sexo=datos_paciente.get('sexo', 'No especificado'),
         peso=datos_paciente.get('peso', 'No especificado'),
         sintomas=', '.join(sintomas),
-        respuestas=respuestas_texto
+        respuestas=respuestas_texto,
+        base_conocimiento=base_conocimiento_texto
     )
 
     print("Prompt generado:")
     print(prompt)
     
-    # Mensajes que se envían al modelo
+    # Preparar los mensajes para enviar al modelo
     messages = [{"role": "system", "content": prompt}]
 
     response = client.chat.completions.create(

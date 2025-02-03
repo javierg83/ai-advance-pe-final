@@ -104,7 +104,7 @@ def es_intento_danino(response, umbral):
 
 
 
-def analisis_moderador_generico(client, datos_paciente_json, respuestas_adicionales_json, sintomas):
+def analisis_moderador_generico(client, datos_paciente_json, sintomas, respuestas_adicionales_json):
   
 
 

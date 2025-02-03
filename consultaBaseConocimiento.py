@@ -6,8 +6,7 @@ Este módulo contiene las funciones y componenetes necesarios para conexion con 
 
 """
 
-import openai
-import json
+
 import numpy as np
 from redis import Redis
 from redis.commands.search.query import Query
@@ -33,13 +32,6 @@ except Exception as e:
     print("❌ Error en la conexión a Redis:", str(e))
     exit()
 
-# Prompt del asistente
-ai_prompt_system = """
-Tu nombre es EnfBot, eres un experto en enfermedades y su solución.
-Tu principal misión es responder y ayudar a los clientes en descubrir su enfermedad, entregarle una solución, medicamento y informarle si tendrá licencia médica.
-Ubicación: Chile.
-Siempre en español.
-"""
 
 VECTOR_FIELD_NAME = 'content_vector'
 
@@ -71,34 +63,9 @@ def find_vector_in_redis(query, client):
         print("❌ Error al buscar en Redis:", str(e))
         return []
 
-def generate_text(prompt, client):
-    
-    messages = [{"role": "system", "content": ai_prompt_system}]
-    messages.append({'role': 'user', 'content': prompt})
+def busqueda_base_conocimiento(client, sintomas, respuestas_adicionales):
 
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-            temperature=0,
-            max_tokens=300,
-            top_p=0.95,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
-        return response.choices[0].message.content
-
-    except Exception as e:
-        print("❌ Error al generar texto:", str(e))
-        return "Error al generar respuesta."
-
-
-def busqueda_base_conocimiento(client):
-
-    # Mensaje de prueba
-    message = """
-    ¿Qué enfermedad tengo y cuál es la solución si mis síntomas son dolor de garganta e inflamación de amígdalas? Quiero saber qué me recomiendas para recuperarme y cuánto me demoraré en estar sano.
-    """
+    message = preparar_mensaje_vectorial(sintomas, respuestas_adicionales)
 
     find_database_answer = find_vector_in_redis(message, client)
 
@@ -108,10 +75,20 @@ def busqueda_base_conocimiento(client):
     else:
         content_0 = "No se encontraron coincidencias en la base de datos."
 
-    # Construcción del prompt final
-    prompt = f"Contexto: {content_0}, respeta el contexto siempre y responde la pregunta: {message}"
-    response = generate_text(prompt, client)
+    print("content_0="+content_0)
+    return content_0
+    
 
-    print("Response:", response)
+def preparar_mensaje_vectorial(sintomas, respuestas_adicionales):
 
+    message = "Síntomas: " + ", ".join(sintomas) + "\n\n"
 
+    # Si hay respuestas adicionales, se procesan y se agregan al mensaje.
+    if isinstance(respuestas_adicionales, list) and respuestas_adicionales:
+        respuestas_str = "; ".join(
+            [f"{r.get('pregunta', 'Sin pregunta')}: {r.get('respuesta', 'Sin respuesta')}"
+            for r in respuestas_adicionales if isinstance(r, dict)]
+        )
+        message += "Respuestas adicionales: " + respuestas_str
+
+    return message
