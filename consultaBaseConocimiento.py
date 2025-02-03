@@ -11,17 +11,20 @@ from dotenv import load_dotenv
 from redis import Redis
 from redis.commands.search.query import Query
 
-
 # Load the environment variables from .env file
 load_dotenv()
 
-# Configuración de OpenAI y Redis (OCULTAR ESTOS DATOS EN EL ENV)
+
+# Configuración de OpenAI y Redis
 redis_host = os.environ.get("REDIS_HOST")
 redis_port = os.environ.get("REDIS_PORT")
 redis_db = os.environ.get("REDIS_DB")
 redis_password = os.environ.get("REDIS_PASSWORD")
 redis_username = os.environ.get("REDIS_USERNAME")
 redis_index = os.environ.get("REDIS_INDEX")
+
+VECTOR_FIELD_NAME = "content_vector"
+"""Nombre del campo de vectores en Redis."""
 
 # Conexión única a Redis
 redis_url = (
@@ -36,9 +39,6 @@ try:
 except Exception as e:
     print("❌ Error en la conexión a Redis:", str(e))
     exit()
-
-
-VECTOR_FIELD_NAME = "content_vector"
 
 
 def find_vector_in_redis(query, client):

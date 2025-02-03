@@ -1,32 +1,33 @@
 #!/usr/bin/env python
 
-import json
-
 """Documentación del archivo del Asistente Médico"""
+
+# Librerías a importar
+
 
 # Plantilla del prompt con inclusión de la base de conocimiento
 prompt_recomendacion_medica = """
-    Actúa como un médico virtual con experiencia clínica en diagnóstico general.
-    Tu objetivo es analizar la información del paciente y proporcionar posibles 
-    diagnósticos y recomendaciones.
-    Sé claro, organizado y conciso.
-    
-    Paciente:
-    - Nombre: {nombre}
-    - Edad: {edad}
-    - Sexo: {sexo}
-    - Peso: {peso} kg
-    - Síntomas: {sintomas}
-    - Respuestas adicionales: {respuestas}
-    - Base de conocimiento: {base_conocimiento}
+Actúa como un médico virtual con experiencia clínica en diagnóstico general.
+Tu objetivo es analizar la información del paciente y proporcionar posibles 
+diagnósticos y recomendaciones.
+Sé claro, organizado y conciso.
 
-    Instrucciones para la respuesta:
-    1. Proporciona un análisis detallado de los síntomas y factores del paciente.
-    2. Enuncia posibles diagnósticos.
-    3. Ofrece recomendaciones o sugerencias de pasos siguientes (consultas, pruebas, medidas básicas de cuidado), indicando medicamentos específicos si fuera necesario.
-    4. Si la certeza del diagnóstico es mayor al 80%, concluye la sesión sin más preguntas.
-    
-    Nota: La información proporcionada es solo para fines de orientación y no debe considerarse como consejo médico definitivo.
+Paciente:
+- Nombre: {nombre}
+- Edad: {edad}
+- Sexo: {sexo}
+- Peso: {peso} kg
+- Síntomas: {sintomas}
+- Respuestas adicionales: {respuestas}
+- Base de conocimiento: {base_conocimiento}
+
+Instrucciones para la respuesta:
+1. Proporciona un análisis detallado de los síntomas y factores del paciente.
+2. Enuncia posibles diagnósticos.
+3. Ofrece recomendaciones o sugerencias de pasos siguientes (consultas, pruebas, medidas básicas de cuidado), indicando medicamentos específicos si fuera necesario.
+4. Si la certeza del diagnóstico es mayor al 80%, concluye la sesión sin más preguntas.
+
+Nota: La información proporcionada es solo para fines de orientación y no debe considerarse como consejo médico definitivo.
 """
 
 def realizar_recomendacion_medica(client, datos_paciente_json, respuestas_adicionales_json, sintomas, base_conocimiento):

@@ -12,6 +12,28 @@ Funciones disponibles:
 import json
 import re
 
+# Constantes para validación de datos (EXPORTABLES A LA API)
+CARACTERES_PARA_NOMBRE = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$"
+"""Caracteres permitidos para el nombre del paciente."""
+
+CARACTERES_PARA_RUT = r"^[0-9]+-[0-9Kk]$"
+"""Caracteres permitidos para el RUT del paciente."""
+
+CARACTERES_PARA_SEXO = ["M", "F", "N"]
+"""Caracteres permitidos para el sexo del paciente."""
+
+EDAD_MINIMA = 0
+"""Edad mínima permitida para el paciente."""
+
+EDAD_MAXIMA = 125
+"""Edad máxima permitida para el paciente."""
+
+PESO_MINIMO = 0
+"""Peso mínimo permitido para el paciente."""
+
+PESO_MAXIMO = 250
+"""Peso máximo permitido para el paciente."""
+
 
 def obtener_datos_paciente():
     datos = {}
@@ -138,24 +160,26 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
 
 
 # Funciones de validación
-def validar_nombre(nombre):
-    return bool(re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$", nombre))
+def validar_nombre(nombre: str) -> bool:
+    return bool(re.match(CARACTERES_PARA_NOMBRE, nombre.strip()))
 
 
-def validar_rut(rut):
-    return bool(re.match(r"^[0-9]+-[0-9Kk]$", rut))
+def validar_rut(rut: str) -> bool:
+    return bool(re.match(CARACTERES_PARA_RUT, rut.strip()))
 
 
-def validar_sexo(sexo):
-    return sexo.upper() in ["M", "F", "N"]
+def validar_sexo(caracter_sexo: str) -> bool:
+    return caracter_sexo.strip().upper() in CARACTERES_PARA_SEXO
 
 
-def validar_edad(edad):
-    return edad.isdigit() and 0 <= int(edad) <= 120
+def validar_edad(edad: str) -> bool:
+    # Se valida que la edad pueda comenzar en cero años (ej. un lactante), hasta 120 años
+    return edad.isdigit() and EDAD_MINIMA <= int(edad.strip()) <= EDAD_MAXIMA
 
 
-def validar_peso(peso):
-    return peso.isdigit() and 0 <= int(peso) <= 200
+def validar_peso(peso: str) -> bool:
+    # TODO: ¿El peso Podría ser 0 kg (ej. recién nacido)?
+    return peso.isdigit() and PESO_MINIMO <= int(peso.strip()) <= PESO_MAXIMO
 
 
 def guardar_datos(datos, almacenado_correctamente):

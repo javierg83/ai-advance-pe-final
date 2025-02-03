@@ -88,7 +88,7 @@ def main():
 
         if true_categories:
             print(
-                "MODERADOR GENÉRICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS"
+                "MODERADOR GENÉRICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS."
             )
         else:
             print("PUEDE CONTINUAR CON LAS PREGUNTAS")
