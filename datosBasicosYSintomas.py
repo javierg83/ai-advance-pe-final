@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-import re
-import json
-
 """
 Este módulo contiene funciones para la obtención de los datos personales del paciente y los síntomas relacionados con su enfermedad.
 
@@ -12,6 +9,30 @@ Funciones disponibles:
 - realizar_preguntas_relevantes: Genera preguntas relevantes basándose en los síntomas y características del paciente utilizando GPT-4o-mini.
 """
 
+import json
+import re
+
+# Constantes para validación de datos (EXPORTABLES A LA API)
+CARACTERES_PARA_NOMBRE = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$"
+"""Caracteres permitidos para el nombre del paciente."""
+
+CARACTERES_PARA_RUT = r"^[0-9]+-[0-9Kk]$"
+"""Caracteres permitidos para el RUT del paciente."""
+
+CARACTERES_PARA_SEXO = ["M", "F", "N"]
+"""Caracteres permitidos para el sexo del paciente."""
+
+EDAD_MINIMA = 0
+"""Edad mínima permitida para el paciente."""
+
+EDAD_MAXIMA = 125
+"""Edad máxima permitida para el paciente."""
+
+PESO_MINIMO = 0
+"""Peso mínimo permitido para el paciente."""
+
+PESO_MAXIMO = 250
+"""Peso máximo permitido para el paciente."""
 
 
 def obtener_datos_paciente():
@@ -48,7 +69,11 @@ def obtener_datos_paciente():
         guardar_datos(datos, False)
         return
 
-    if not solicitar_dato("Ingresa tu sexo (M: Masculino, F: Femenino, N: No informa): ", validar_sexo, "sexo"):
+    if not solicitar_dato(
+        "Ingresa tu sexo (M: Masculino, F: Femenino, N: No informa): ",
+        validar_sexo,
+        "sexo",
+    ):
         print("⛔ No es posible continuar sin un sexo válido.")
         guardar_datos(datos, False)
         return
@@ -57,7 +82,7 @@ def obtener_datos_paciente():
         print("⛔ No es posible continuar sin una edad válida.")
         guardar_datos(datos, False)
         return
-    
+
     if not solicitar_dato("Ingresa tu peso (0-200 Kg): ", validar_peso, "peso"):
         print("⛔ No es posible continuar sin un peso valido")
         guardar_datos(datos, False)
@@ -70,9 +95,6 @@ def obtener_datos_paciente():
     return datos
 
 
-
-
-
 def registrar_sintomas():
     """Solicita al paciente que ingrese sus síntomas."""
     print("\nIngrese los síntomas que está presentando (separados por coma):")
@@ -83,7 +105,9 @@ def registrar_sintomas():
 
 def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
     """Genera preguntas relevantes basándose en los síntomas y características del paciente utilizando GPT-4o-mini."""
-    print("\nEl modelo está analizando los síntomas y generando preguntas adicionales...")
+    print(
+        "\nEl modelo está analizando los síntomas y generando preguntas adicionales..."
+    )
 
     # Ajustar el prompt para incluir sexo, peso y edad del paciente
     prompt = (
@@ -111,22 +135,21 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
             frequency_penalty=0,
             presence_penalty=0,
         )
-        
+
         preguntas = response.choices[0].message.content.split("\n")
         respuestas = []
         for pregunta in preguntas:
             if pregunta.strip():
                 respuesta = input(f"{pregunta.strip()} ")
-                respuestas.append({
-                    "pregunta": pregunta.strip(),
-                    "respuesta": respuesta
-                })
+                respuestas.append(
+                    {"pregunta": pregunta.strip(), "respuesta": respuesta}
+                )
 
         # Generar un JSON con las preguntas y respuestas en el formato solicitado
         preguntas_respuestas = respuestas
 
         # Guardar las preguntas y respuestas en un archivo JSON con codificación UTF-8
-        with open('preguntas_respuestas.json', 'w', encoding='utf-8') as f:
+        with open("preguntas_respuestas.json", "w", encoding="utf-8") as f:
             json.dump(preguntas_respuestas, f, indent=4, ensure_ascii=False)
         print("1")
 
@@ -136,23 +159,28 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
         return []
 
 
-
-
 # Funciones de validación
-def validar_nombre(nombre):
-    return bool(re.match(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$", nombre))
+def validar_nombre(nombre: str) -> bool:
+    return bool(re.match(CARACTERES_PARA_NOMBRE, nombre.strip()))
 
-def validar_rut(rut):
-    return bool(re.match(r"^[0-9]+-[0-9Kk]$", rut))
 
-def validar_sexo(sexo):
-    return sexo.upper() in ["M", "F", "N"]
+def validar_rut(rut: str) -> bool:
+    return bool(re.match(CARACTERES_PARA_RUT, rut.strip()))
 
-def validar_edad(edad):
-    return edad.isdigit() and 0 <= int(edad) <= 120
 
-def validar_peso(peso):
-    return peso.isdigit() and 0 <= int(peso) <= 200
+def validar_sexo(caracter_sexo: str) -> bool:
+    return caracter_sexo.strip().upper() in CARACTERES_PARA_SEXO
+
+
+def validar_edad(edad: str) -> bool:
+    # Se valida que la edad pueda comenzar en cero años (ej. un lactante), hasta 120 años
+    return edad.isdigit() and EDAD_MINIMA <= int(edad.strip()) <= EDAD_MAXIMA
+
+
+def validar_peso(peso: str) -> bool:
+    # TODO: ¿El peso Podría ser 0 kg (ej. recién nacido)?
+    return peso.isdigit() and PESO_MINIMO <= int(peso.strip()) <= PESO_MAXIMO
+
 
 def guardar_datos(datos, almacenado_correctamente):
     datos["almacenado_correctamente"] = almacenado_correctamente

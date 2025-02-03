@@ -1,7 +1,7 @@
 # Por completar lista de dependencias
-python-dotenv
 numpy
 pydantic
+python-dotenv
 
 uvicorn
 fastapi
