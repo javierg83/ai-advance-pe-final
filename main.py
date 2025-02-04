@@ -35,6 +35,8 @@ def main():
     usoSupervisorMedico = True
     usoGeneracionOrdenMedica = True
 
+    base_conocimiento = ""
+
     # Paso 1: Recopilar datos personales del paciente
     datos_paciente = datosBasicosYSintomas.obtener_datos_paciente()
 
@@ -51,15 +53,13 @@ def main():
         categorias_restringidas = moderador.analisis_moderador_generico(client, datos_paciente, sintomas, respuestas_adicionales)
 
         if categorias_restringidas:
-            print(
-                "MODERADOR GENÉRICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS."
-            )
+            print("MODERADOR GENÉRICO NOK. LO SENTIMOS TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS.")
         else:
             print("MODERADOR GENERICO OK")
 
         # moderador.moderador_intencion()
 
-    # Paso 3: Se Utiliza llamada a RAG
+    #Paso 3: Se Utiliza llamada a RAG
     if usoRag:
         base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento(
             client, sintomas, respuestas_adicionales
