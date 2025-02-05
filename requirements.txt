@@ -1,8 +1,9 @@
 # Por completar lista de dependencias
-python-docx
 numpy
 pydantic
+python-docx
 python-dotenv
+rich
 
 uvicorn
 fastapi
@@ -13,5 +14,6 @@ requests
 langchain
 langchain-core
 langchain-text-splitters
-langchain_openai
+langchain-openai
+langchain-community
 langsmith
