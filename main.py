@@ -85,8 +85,8 @@ def main():
     if usoAgente:
         respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica(
             openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento)
-        #print("\n--- Recomendación Médica ---")
-        #print(respuesta_asistente_medico)
+        print("\n--- Recomendación Médica ---")
+        print(respuesta_asistente_medico)
 
     # Paso 7: Llamadas adicionales
     if usoSupervisorMedico:
@@ -194,7 +194,7 @@ def resultado():
 
         # Paso 3: Recomendación médica web
         respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica_web(openai_client, datos, sintomas, respuestas, base_conocimiento)
-
+        print("respuesta asisnte medico= "+respuesta_asistente_medico)
         # Paso 4: Generar la orden médica y guardar la ruta en la sesión
         orden_filepath = generacionOrdenMedica.generar_orden_medica_web(openai_client, datos, sintomas, respuestas, base_conocimiento, respuesta_asistente_medico)
 

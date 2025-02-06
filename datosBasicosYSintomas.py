@@ -90,7 +90,9 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
         f"Síntomas reportados: {', '.join(sintomas)}\n"
         "Con base en estos síntomas y características del paciente, genere hasta 5 preguntas relevantes "
         "para obtener más detalles que complementen el diagnóstico. Las preguntas deben ser claras y específicas."
+        "SALIDA: las 5 preguntas generadas sin otros textos complementarios."
     )
+
     try:
         messages = [
             {"role": "system", "content": "Eres un asistente médico que ayuda a recopilar información relevante de pacientes."},
@@ -160,6 +162,7 @@ def realizar_preguntas_relevantes_web(datos_basicos, sintomas, clientIA):
         f"Síntomas reportados: {', '.join(sintomas)}\n"
         "Con base en estos síntomas y características del paciente, genere hasta 5 preguntas relevantes "
         "para obtener más detalles que complementen el diagnóstico. Las preguntas deben ser claras y específicas."
+        "SALIDA: las 5 preguntas generadas sin otros textos complementarios."
     )
     try:
         # Usar el logger de Flask si está en contexto, sino el global
