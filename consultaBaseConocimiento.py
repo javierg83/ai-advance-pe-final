@@ -18,7 +18,7 @@ def conexion():
     redis_host = "redis-19179.c277.us-east-1-3.ec2.redns.redis-cloud.com"
     redis_port = 19179
     redis_db = 0
-    redis_password = "GlTO5JYBYVaT4bGgEKhpAkR2oyxxbyg4"
+    redis_password = "GlTO5JYBYVaT4bGgEKhpAkR2oyxxbyg1"
     redis_username = "default"
     redis_index = "V1"
 

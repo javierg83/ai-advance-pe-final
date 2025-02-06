@@ -1,0 +1,42 @@
+<!-- registro.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Paciente</title>
+</head>
+<body>
+  <h1>Registro de Datos del Paciente</h1>
+  <!-- Muestra errores si existen -->
+  {% if errores %}
+    <ul style="color:red;">
+      {% for campo, error in errores.items() %}
+        <li>{{ campo }}: {{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  <form method="post">
+    <label>Nombre:</label>
+    <input type="text" name="nombre" value="{{ datos.nombre if datos }}" required><br><br>
+    
+    <label>RUT:</label>
+    <input type="text" name="rut" value="{{ datos.rut if datos }}" required><br><br>
+    
+    <label>Sexo:</label>
+    <select name="sexo" required>
+      <option value="">Seleccione</option>
+      <option value="M" {% if datos and datos.sexo == "M" %}selected{% endif %}>Masculino</option>
+      <option value="F" {% if datos and datos.sexo == "F" %}selected{% endif %}>Femenino</option>
+      <option value="N" {% if datos and datos.sexo == "N" %}selected{% endif %}>No informa</option>
+    </select><br><br>
+    
+    <label>Edad:</label>
+    <input type="number" name="edad" value="{{ datos.edad if datos }}" required><br><br>
+    
+    <label>Peso (Kg):</label>
+    <input type="number" name="peso" step="any" value="{{ datos.peso if datos }}" required><br><br>
+    
+    <button type="submit">Enviar</button>
+  </form>
+</body>
+</html>

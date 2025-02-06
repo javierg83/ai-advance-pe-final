@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Preguntas Dinámicas</title>
+</head>
+<body>
+    <h1>Responda las siguientes preguntas</h1>
+    <form method="post">
+        {% for pregunta in preguntas %}
+            <div>
+                <label>{{ pregunta }}</label><br>
+                <input type="text" name="pregunta_{{ loop.index0 }}" required>
+            </div>
+            <br>
+        {% endfor %}
+        <button type="submit">Enviar Respuestas</button>
+    </form>
+</body>
+</html>

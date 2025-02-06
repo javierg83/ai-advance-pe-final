@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado de la Consulta Médica</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {background-color: #f9f9f9;}
+    </style>
+</head>
+<body>
+    <h1>Resultado del Análisis</h1>
+    
+    <h2>Recomendación Médica:</h2>
+    <p>{{ conclusion }}</p>
+    
+    <h3>Datos del Paciente</h3>
+    <ul>
+      <li>Nombre: {{ datos.nombre }}</li>
+      <li>Edad: {{ datos.edad }}</li>
+      <li>Sexo: {{ datos.sexo }}</li>
+      <li>Peso: {{ datos.peso }}</li>
+    </ul>
+    
+    <h3>Síntomas</h3>
+    <p>{{ sintomas|join(', ') }}</p>
+    
+    <h3>Respuestas Adicionales</h3>
+    {% if respuestas %}
+    <table>
+        <thead>
+            <tr>
+                <th>Pregunta</th>
+                <th>Respuesta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in respuestas %}
+            <tr>
+                <td>{{ item.pregunta }}</td>
+                <td>{{ item.respuesta }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+      <p>No se han proporcionado respuestas adicionales.</p>
+    {% endif %}
+    
+    {% if orden_filepath %}
+      <p>
+        <a href="{{ url_for('download') }}">Descargar Orden Médica</a>
+      </p>
+    {% else %}
+      <p>No se generó ninguna orden médica.</p>
+    {% endif %}
+</body>
+</html>

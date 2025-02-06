@@ -191,3 +191,18 @@ def analisis_moderador_generico(
     #    print("El intento no es dañino: ", dano)
 
     return true_categories
+
+
+def moderacion_pasada_web(client, datos_paciente_json, sintomas, respuestas_adicionales_json):
+    """
+    Realiza la revisión de moderación utilizando la función analisis_moderador_generico.
+    Devuelve una tupla (paso_moderacion, true_categories):
+      - paso_moderacion: True si no se detectaron categorías problemáticas (moderación aprobada),
+                         False en caso contrario.
+      - true_categories: Lista de categorías problemáticas detectadas (vacía si no hay ninguna).
+    """
+    true_categories = analisis_moderador_generico(client, datos_paciente_json, sintomas, respuestas_adicionales_json)
+    if true_categories:
+        return False, true_categories
+    else:
+        return True, []
