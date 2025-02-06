@@ -1,0 +1,18 @@
+# Lista de dependencias
+python-docx
+numpy
+pandas
+pydantic
+python-dotenv
+rich
+
+Flask
+
+openai
+redis
+requests
+langchain
+langchain-core
+langchain-text-splitters
+langchain_openai
+langsmith
