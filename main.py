@@ -135,7 +135,12 @@ def main():
 
     # Paso 7: Llamadas adicionales
     if usoSupervisorMedico:
-        supervisorMedico.revision_recomendacion_medica()
+        print("1")
+        respuesta_supervisor = supervisorMedico.revision_recomendacion_medica(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico)
+        print("2")
+        print("respuesta_supervisor="+respuesta_supervisor)
+        print("3")
+
     if usoGeneracionOrdenMedica:
         generacionOrdenMedica.generar_orden_medica(
             openai_client,
