@@ -1,7 +1,14 @@
+#!/usr/bin/env python
+
+"""
+Este módulo se encarga de la generación de una orden médica en formato Word,
+a partir de la información proporcionada por el usuario y el asistente médico.
+"""
+
 from docx import Document
-from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-import os
+from docx.shared import Pt
+
 
 def agregar_separador(document):
     """
@@ -12,17 +19,29 @@ def agregar_separador(document):
     run_sep.font.size = Pt(10)
     parrafo_sep.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-def generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico):
+def generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico) -> str:
     """
     Genera una orden médica en formato Word a partir de la información proporcionada.
     
     Parámetros:
-      - openai_client: objeto cliente (para futuras integraciones).
-      - datos_paciente: diccionario con los datos del paciente.
-      - sintomas: cadena de texto con los síntomas ingresados por el paciente.
-      - respuestas_adicionales: diccionario o lista de diccionarios con pares pregunta-respuesta.
-      - base_conocimiento: información o referencia (no se utiliza en este ejemplo).
-      - respuesta_asistente_medico: diccionario con claves 'analisis', 'diagnostico' y 'recomendacion'.
+    ----------
+    openai_client : 
+        objeto cliente (para futuras integraciones).
+    datos_paciente : 
+        diccionario con los datos del paciente.
+    sintomas : 
+        cadena de texto con los síntomas ingresados por el paciente.
+    respuestas_adicionales : 
+        diccionario o lista de diccionarios con pares pregunta-respuesta.
+    base_conocimiento : 
+        información o referencia (no se utiliza en este ejemplo).
+    respuesta_asistente_medico : _typ_
+        diccionario con claves 'analisis', 'diagnostico' y 'recomendacion'.
+
+    Retorna
+    -------
+    str
+        Nombre del archivo generado.
     """
     
     document = Document()
@@ -71,12 +90,10 @@ def generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adi
     if isinstance(respuestas_adicionales, dict):
         
         for pregunta, respuesta in respuestas_adicionales.items():
-            
             row_cells = tabla.add_row().cells
             row_cells[0].text = pregunta
             row_cells[1].text = respuesta
     elif isinstance(respuestas_adicionales, list):
-        
         for item in respuestas_adicionales:
             pregunta = item.get('pregunta', '')
             respuesta = item.get('respuesta', '')
@@ -85,7 +102,6 @@ def generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adi
             row_cells[0].text = pregunta
             row_cells[1].text = respuesta
     else:
-        
         row_cells = tabla.add_row().cells
         row_cells[0].text = "No se proporcionaron datos válidos."
         row_cells[1].text = ""
@@ -123,13 +139,22 @@ def generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adi
     print(f"Documento guardado como '{nombre_archivo}'")
     return nombre_archivo
 
-def generar_orden_medica_web(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico):
+
+def generar_orden_medica_web(
+    openai_client,
+    datos_paciente,
+    sintomas,
+    respuestas_adicionales,
+    base_conocimiento,
+    respuesta_asistente_medico,
+):
     """
     Función para entornos web: genera la orden médica usando la función original y devuelve
     la ruta del archivo generado para que se pueda descargar desde la aplicación web.
     """
     archivo = generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico)
     return archivo
+
 
 # Ejemplo de llamada para consola (no se ejecuta en modo web)
 if __name__ == "__main__":
@@ -142,7 +167,7 @@ if __name__ == "__main__":
         'rut': '12.345.678-9'
     }
     sintomas = "El paciente presenta dolor abdominal, fiebre y náuseas."
-    
+
     # Puedes probar con un diccionario:
     # respuestas_adicionales = {
     #     "¿Ha presentado vómitos?": "Sí, de forma intermitente.",
@@ -166,4 +191,11 @@ if __name__ == "__main__":
         'recomendacion': "Se recomienda reposo, hidratación y, en caso de empeoramiento, acudir a urgencias."
     }
 
-    generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico)
+    generar_orden_medica(
+        openai_client,
+        datos_paciente,
+        sintomas,
+        respuestas_adicionales,
+        base_conocimiento,
+        respuesta_asistente_medico,
+    )

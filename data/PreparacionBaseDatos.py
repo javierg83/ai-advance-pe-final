@@ -9,7 +9,10 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores.redis import Redis
 from langchain_openai.embeddings import OpenAIEmbeddings
-from rich import print, traceback  # sobreescritura de la función print, para darle formato
+from rich import (
+    print,  # sobreescribe la función print, para utilizar formato con colores
+    traceback
+)
 
 # activa traceback para mejorar la depuración de excepciones
 traceback.install()
@@ -19,8 +22,8 @@ output_dir = ".//data"
 input_file = ".//data//claves.csv"
 
 
-# Función para generar el texto
-def create_enfermedad_details_text(row):
+def create_enfermedad_details_text(row) -> str:
+    """Generar el texto a almacenar en el archivo .txt para cada enfermedad."""
     return (
         f"Enfermedad: {row['nombre']}\n"
         f"Sintoma Principal: {row['sintoma_1']}\n"
@@ -33,6 +36,7 @@ def create_enfermedad_details_text(row):
         f"Medicamento: {row['medicamento']}\n"
         f"Licencia Medica: {row['licencia_medica']}\n"
     )
+
 
 # Crear la carpeta si no existe
 os.makedirs(output_dir, exist_ok=True)
@@ -94,4 +98,7 @@ for filename in sorted(os.listdir(input_dir)):
             f"[bold]Documentos del archivo '{filename}' fueron cargados exitosamente en REDIS, en{ {number_chunks}+'chunks' if number_chunks>1 else 'un solo chunk'}.[/bold]"
         )
 
-print("[bold green]Todos los archivos han sido procesados y cargados en REDIS.[/bold green]")
+print(
+    "[bold green]Todos los archivos han sido procesados y cargados en REDIS.[/bold green]"
+)
+
