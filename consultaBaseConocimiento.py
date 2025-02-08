@@ -14,14 +14,15 @@ VECTOR_FIELD_NAME = 'content_vector'
 
 def conexion():
 
-    # Configuración de OpenAI y Redis (OCULTAR ESTOS DATOS EN EL ENV)
-    redis_host = "redis-19179.c277.us-east-1-3.ec2.redns.redis-cloud.com"
-    redis_port = 19179
-    redis_db = 0
-    redis_password = "GlTO5JYBYVaT4bGgEKhpAkR2oyxxbyg1"
-    redis_username = "default"
-    redis_index = "V1"
-
+    # Configuración de OpenAI y Redis 
+    redis_host = os.environ.get("REDIS_HOST")
+    redis_port = os.environ.get("REDIS_PORT")
+    redis_db = os.environ.get("REDIS_DB")
+    redis_password = os.environ.get("REDIS_PASSWORD")
+    redis_username = os.environ.get("REDIS_USERNAME")
+    redis_index = os.environ.get("REDIS_INDEX")
+    gpt_key = os.environ.get("OPENAI_API_KEY")
+    
     # Conexión única a Redis
     redis_url = f"redis://{redis_username}:{redis_password}@{redis_host}:{redis_port}/{redis_db}"
     redis_client = Redis.from_url(redis_url)
