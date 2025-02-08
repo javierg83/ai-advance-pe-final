@@ -107,8 +107,8 @@ def main():
             )
 
             print(
-                f"[bold]Documentos del archivo '{filename}' fueron cargados exitosamente en REDIS, en",
-                f"{ {number_chunks} + 'chunks' if number_chunks > 1 else 'un solo chunk' }.[/bold]"
+                f"[bold]Documentos del archivo '{filename}' fueron cargados exitosamente en REDIS, en[/bold]",
+                f"[bold]{ {number_chunks} + 'chunks' if number_chunks > 1 else 'un solo chunk' }.[/bold]"
             )
 
     print(
