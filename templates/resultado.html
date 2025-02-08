@@ -2,69 +2,176 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resultado de la Consulta Médica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado de la Consulta Médica - Asistente Médico Virtual</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url("{{ url_for('static', filename='background-medical-ai.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: rgb(255, 255, 255);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo img {
+            width: 120px;
+            height: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            text-align: center;
+            color: white;
+            background: #0072ff;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        h3 {
+            text-align: center;
+            color: #005f99;
+            background: rgba(0, 198, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .section {
+            background: rgba(240, 248, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
         table {
+            width: 100%;
             border-collapse: collapse;
-            width: 80%;
-            margin: 20px 0;
+            margin-top: 20px;
         }
         th, td {
+            padding: 12px;
             border: 1px solid #ddd;
-            padding: 8px;
             text-align: left;
         }
         th {
+            background-color: #00c6ff;
+            color: white;
+        }
+        tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        tr:hover {background-color: #f9f9f9;}
+        .btn {
+            display: block;
+            margin: 20px auto;
+            padding: 12px 20px;
+            background: #00c6ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            width: 90%;
+            font-size: 1rem;
+            max-width: 250px;
+        }
+        .btn:hover {
+            background: #0072ff;
+        }
     </style>
 </head>
 <body>
-    <h1>Resultado del Análisis</h1>
-    
-    <h2>Recomendación Médica:</h2>
-    <p>{{ conclusion }}</p>
-    
-    <h3>Datos del Paciente</h3>
-    <ul>
-      <li>Nombre: {{ datos.nombre }}</li>
-      <li>Edad: {{ datos.edad }}</li>
-      <li>Sexo: {{ datos.sexo }}</li>
-      <li>Peso: {{ datos.peso }}</li>
-    </ul>
-    
-    <h3>Síntomas</h3>
-    <p>{{ sintomas|join(', ') }}</p>
-    
-    <h3>Respuestas Adicionales</h3>
-    {% if respuestas %}
-    <table>
-        <thead>
-            <tr>
-                <th>Pregunta</th>
-                <th>Respuesta</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in respuestas %}
-            <tr>
-                <td>{{ item.pregunta }}</td>
-                <td>{{ item.respuesta }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-      <p>No se han proporcionado respuestas adicionales.</p>
-    {% endif %}
-    
-    {% if orden_filepath %}
-      <p>
-        <a href="{{ url_for('download') }}">Descargar Orden Médica</a>
-      </p>
-    {% else %}
-      <p>No se generó ninguna orden médica.</p>
-    {% endif %}
+    <div class="container">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Atencion PrimarIA">
+            <h2 style="color: #333; background: none; padding: 0;">Atención PrimarIA</h2>
+        </div>
+        <h1>Resultado del Análisis</h1>
+        
+        <div class="section">
+            <h2>Recomendación Médica</h2>
+            <p>{{ conclusion }}</p>
+        </div>
+        
+        <div class="section">
+            <h3>Datos del Paciente</h3>
+            <ul>
+                <li><strong>Nombre:</strong> {{ datos.nombre }}</li>
+                <li><strong>Edad:</strong> {{ datos.edad }}</li>
+                <li><strong>Sexo:</strong> {{ datos.sexo }}</li>
+                <li><strong>Peso:</strong> {{ datos.peso }}</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h3>Síntomas</h3>
+            <p>{{ sintomas|join(', ') }}</p>
+        </div>
+        
+        <h3>Respuestas Adicionales</h3>
+        {% if respuestas %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Pregunta</th>
+                    <th>Respuesta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in respuestas %}
+                <tr>
+                    <td>{{ item.pregunta }}</td>
+                    <td>{{ item.respuesta }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No se han proporcionado respuestas adicionales.</p>
+        {% endif %}
+
+        <h3>Resultado Asistente Medico</h3>
+        {% if respuestas %}
+
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Pregunta</th>
+                    <th>Respuesta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in respuestas %}
+                <tr>
+                    <td>{{ item.pregunta }}</td>
+                    <td>{{ item.respuesta }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No se han proporcionado respuestas adicionales.</p>
+        {% endif %}
+        
+        {% if orden_filepath %}
+        <a class="btn" href="{{ url_for('download') }}">Descargar Orden Médica</a>
+        {% else %}
+        <p>No se generó ninguna orden médica.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
+
+
+

@@ -97,9 +97,12 @@ def main():
 
     # Paso 4: Uso de moderadores
     if usoModeradores:
-        categorias_restringidas = moderador.analisis_moderador_generico(
-            openai_client, datos_paciente, sintomas, respuestas_adicionales
-        )
+        #categorias_restringidas = moderador.analisis_moderador_generico(
+        #    openai_client, datos_paciente, sintomas, respuestas_adicionales
+        #)
+        resultado, categorias_restringidas = moderador.moderacion_pasada_web(openai_client, datos_paciente, sintomas, respuestas_adicionales)
+        print("Resultado de moderación:", "Aprobado" if resultado else "Rechazado")
+
         if categorias_restringidas:
             print(
                 "MODERADOR GENÉRICO NOK. LO SENTIMOS: TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS."
@@ -156,10 +159,10 @@ def main():
             nivel_de_certeza = 0
 
         print("El nivel de certeza es:", nivel_de_certeza)
-        print("respuesta_supervisor=" + respuesta_supervisor_json)
+        
 
     # Generar la orden médica solo si se cumple la condición adicional
-    if usoGeneracionOrdenMedica and nivel_de_certeza > 70:
+    if usoGeneracionOrdenMedica and nivel_de_certeza >= 70:
         generacionOrdenMedica.generar_orden_medica(
             openai_client,
             datos_paciente,
@@ -308,22 +311,27 @@ def resultado():
     orden_filepath = ""
 
     if not moderacion_ok:
+        
         # Si la moderación falla, se puede notificar al usuario y detener el flujo
         app.logger.debug(
             "La consulta no cumple con las normas de moderación. Categorías detectadas: " +
             ", ".join(categorias)
         )
+        
         respuesta_asistente_medico = "Consulta rechazada por moderación."
     else:
+        
         # Paso 2: Búsqueda en base de conocimiento
         base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento(
             openai_client, sintomas, respuestas
         )
+        
         # Paso 3: Recomendación médica web
         app.logger.debug("Asistente Medico Iniciando")
         respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica_web(
             openai_client, datos, sintomas, respuestas, base_conocimiento
         )
+        
         # Paso 4: Llamada al Supervisor Médico para validar la recomendación
         app.logger.debug("Analisis de Supervisor Medico")
         supervisor_response = supervisorMedico.revision_recomendacion_medica(
@@ -334,6 +342,8 @@ def resultado():
             base_conocimiento,
             respuesta_asistente_medico
         )
+        
+        
         # Eliminar delimitadores Markdown, si existen
         
         if supervisor_response.startswith("```"):
@@ -341,15 +351,18 @@ def resultado():
             ultimos_backticks = supervisor_response.rfind("```")
             if primer_salto != -1 and ultimos_backticks != -1:
                 supervisor_response = supervisor_response[primer_salto:ultimos_backticks].strip()
-
+        
         # Parsear la respuesta JSON para extraer el nivel de certeza
         try:
             if isinstance(supervisor_response, str):
+                
                 data = json.loads(supervisor_response)
             else:
+                
                 data = supervisor_response
             nivel_de_certeza = data.get("nivel_de_certeza", 0)
         except json.JSONDecodeError as e:
+            
             app.logger.error("Error al parsear la respuesta JSON: " + str(e))
             nivel_de_certeza = 0
 
@@ -357,6 +370,7 @@ def resultado():
         
         # Paso 5: Generación de la orden médica solo si el nivel de certeza es mayor a 80
         if nivel_de_certeza >= 70:
+            
             app.logger.debug("Generación Orden Medica - Iniciando:")
             orden_filepath = generacionOrdenMedica.generar_orden_medica_web(
                 openai_client,
@@ -367,13 +381,14 @@ def resultado():
                 respuesta_asistente_medico,
             )
         else:
+            
             # Se puede notificar al paciente que, con la información entregada, no se genera orden médica.
             respuesta_asistente_medico += (
                 "\nEstimado paciente, con la información entregada no podemos generar una recomendación médica, "
                 "por lo que debe asistir a un centro asistencial de forma presencial."
             )
             app.logger.debug("respuesta_asistente_medico="+respuesta_asistente_medico)
-
+        
     session["orden_filepath"] = orden_filepath
 
     return render_template(
