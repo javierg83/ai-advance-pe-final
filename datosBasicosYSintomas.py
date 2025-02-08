@@ -29,6 +29,7 @@ EDAD_MAXIMA = 125
 PESO_MINIMO = 0
 PESO_MAXIMO = 250
 
+
 # ----------------------------
 # Funciones para Consola
 # ----------------------------
@@ -76,15 +77,19 @@ def obtener_datos_paciente():
     print("✅ Datos guardados exitosamente en 'datos_demograficos.json'")
     return datos
 
+
 def registrar_sintomas():
     """Solicita al paciente que ingrese sus síntomas vía consola."""
     print("\nIngrese los síntomas que está presentando (separados por coma):")
     sintomas = input("Síntomas: ")
     return [s.strip() for s in sintomas.split(",")]
 
+
 def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
     """Genera preguntas relevantes vía consola solicitando respuestas al usuario."""
-    print("\nEl modelo está analizando los síntomas y generando preguntas adicionales...")
+    print(
+        "\nEl modelo está analizando los síntomas y generando preguntas adicionales..."
+    )
     prompt = (
         f"Paciente de {datos_basicos['edad']} años, sexo {datos_basicos['sexo']} y peso {datos_basicos['peso']} kg.\n"
         f"Síntomas reportados: {', '.join(sintomas)}\n"
@@ -95,12 +100,15 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
 
     try:
         messages = [
-            {"role": "system", "content": "Eres un asistente médico que ayuda a recopilar información relevante de pacientes."},
+            {
+                "role": "system",
+                "content": "Eres un asistente médico que ayuda a recopilar información relevante de pacientes.",
+            },
             {"role": "user", "content": prompt},
         ]
-    
+
         response = clientIA.chat.completions.create(
-        #response = clientIA.chat.ChatCompletion.create(
+            # response = clientIA.chat.ChatCompletion.create(
             model="gpt-4o-mini",
             messages=messages,
             temperature=0,
@@ -114,7 +122,9 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
         for pregunta in preguntas:
             if pregunta.strip():
                 respuesta = input(f"{pregunta.strip()} ")
-                respuestas.append({"pregunta": pregunta.strip(), "respuesta": respuesta})
+                respuestas.append(
+                    {"pregunta": pregunta.strip(), "respuesta": respuesta}
+                )
         with open("preguntas_respuestas.json", "w", encoding="utf-8") as f:
             json.dump(respuestas, f, indent=4, ensure_ascii=False)
         print("Preguntas y respuestas guardadas en 'preguntas_respuestas.json'")
@@ -122,6 +132,7 @@ def realizar_preguntas_relevantes(datos_basicos, sintomas, clientIA):
     except Exception as e:
         print(f"Error al generar preguntas: {str(e)}")
         return []
+
 
 # ----------------------------
 # Funciones para Entornos Web (Sufijo _web)
@@ -139,10 +150,15 @@ def validar_datos_paciente_web(nombre, rut, sexo, edad, peso):
     if not validar_sexo(sexo):
         errores["sexo"] = "Sexo inválido. Use M, F o N."
     if not validar_edad(str(edad)):
-        errores["edad"] = f"Edad inválida. Debe estar entre {EDAD_MINIMA} y {EDAD_MAXIMA}."
+        errores["edad"] = (
+            f"Edad inválida. Debe estar entre {EDAD_MINIMA} y {EDAD_MAXIMA}."
+        )
     if not validar_peso(str(peso)):
-        errores["peso"] = f"Peso inválido. Debe estar entre {PESO_MINIMO} y {PESO_MAXIMO} Kg."
+        errores["peso"] = (
+            f"Peso inválido. Debe estar entre {PESO_MINIMO} y {PESO_MAXIMO} Kg."
+        )
     return errores
+
 
 def parse_sintomas_web(sintomas_str):
     """
@@ -150,6 +166,7 @@ def parse_sintomas_web(sintomas_str):
     Ejemplo: "fiebre, tos, dolor" -> ['fiebre', 'tos', 'dolor']
     """
     return [s.strip() for s in sintomas_str.split(",") if s.strip()]
+
 
 def realizar_preguntas_relevantes_web(datos_basicos, sintomas, clientIA):
     """
@@ -167,15 +184,19 @@ def realizar_preguntas_relevantes_web(datos_basicos, sintomas, clientIA):
     try:
         # Usar el logger de Flask si está en contexto, sino el global
         from flask import current_app
+
         logger = current_app.logger if current_app else logging.getLogger(__name__)
-        
+
         logger.debug("------------------------------------------------")
         logger.debug("Enviando el siguiente prompt a OpenAI:")
         logger.debug(prompt)
         logger.debug("------------------------------------------------")
-        
+
         messages = [
-            {"role": "system", "content": "Eres un asistente médico que ayuda a recopilar información relevante de pacientes."},
+            {
+                "role": "system",
+                "content": "Eres un asistente médico que ayuda a recopilar información relevante de pacientes.",
+            },
             {"role": "user", "content": prompt},
         ]
         response = clientIA.chat.completions.create(
@@ -192,16 +213,18 @@ def realizar_preguntas_relevantes_web(datos_basicos, sintomas, clientIA):
         logger.debug("Respuesta recibida de OpenAI:")
         logger.debug(content)
         logger.debug("------------------------------------------------")
-        
+
         preguntas = [line.strip() for line in content.split("\n") if line.strip()]
         return preguntas
     except Exception as e:
         from flask import current_app
+
         if current_app:
             current_app.logger.error(f"Error al generar preguntas (web): {str(e)}")
         else:
             logging.error(f"Error al generar preguntas (web): {str(e)}")
         return []
+
 
 # ----------------------------
 # Funciones de Validación (Originales)
@@ -209,17 +232,22 @@ def realizar_preguntas_relevantes_web(datos_basicos, sintomas, clientIA):
 def validar_nombre(nombre: str) -> bool:
     return bool(re.match(CARACTERES_PARA_NOMBRE, nombre.strip()))
 
+
 def validar_rut(rut: str) -> bool:
     return bool(re.match(CARACTERES_PARA_RUT, rut.strip()))
+
 
 def validar_sexo(caracter_sexo: str) -> bool:
     return caracter_sexo.strip().upper() in CARACTERES_PARA_SEXO
 
+
 def validar_edad(edad: str) -> bool:
     return edad.isdigit() and EDAD_MINIMA <= int(edad.strip()) <= EDAD_MAXIMA
 
+
 def validar_peso(peso: str) -> bool:
     return peso.isdigit() and PESO_MINIMO <= int(peso.strip()) <= PESO_MAXIMO
+
 
 def guardar_datos(datos, almacenado_correctamente):
     datos["almacenado_correctamente"] = almacenado_correctamente
