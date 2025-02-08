@@ -19,10 +19,18 @@ def agregar_separador(document):
     run_sep.font.size = Pt(10)
     parrafo_sep.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-def generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico) -> str:
+
+def generar_orden_medica(
+    openai_client,
+    datos_paciente,
+    sintomas,
+    respuestas_adicionales,
+    base_conocimiento,
+    respuesta_asistente_medico,
+) -> str:
     """
     Genera una orden médica en formato Word a partir de la información proporcionada.
-    
+
     Parámetros:
     ----------
     openai_client : 
@@ -47,8 +55,8 @@ def generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adi
     document = Document()
 
     # Configurar fuente base (ej. Arial 12 pt)
-    estilo = document.styles['Normal']
-    estilo.font.name = 'Arial'
+    estilo = document.styles["Normal"]
+    estilo.font.name = "Arial"
     estilo.font.size = Pt(12)
 
     # Título principal
@@ -79,25 +87,24 @@ def generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adi
 
     # Crear la tabla para preguntas adicionales
     tabla = document.add_table(rows=1, cols=2)
-    tabla.style = 'LightShading-Accent1'
-    
+    tabla.style = "LightShading-Accent1"
+
     # Encabezados de la tabla
     hdr_cells = tabla.rows[0].cells
-    hdr_cells[0].text = 'Pregunta'
-    hdr_cells[1].text = 'Respuesta'
+    hdr_cells[0].text = "Pregunta"
+    hdr_cells[1].text = "Respuesta"
 
     # Agregar cada par pregunta-respuesta según el tipo de dato
     if isinstance(respuestas_adicionales, dict):
-        
         for pregunta, respuesta in respuestas_adicionales.items():
             row_cells = tabla.add_row().cells
             row_cells[0].text = pregunta
             row_cells[1].text = respuesta
     elif isinstance(respuestas_adicionales, list):
         for item in respuestas_adicionales:
-            pregunta = item.get('pregunta', '')
-            respuesta = item.get('respuesta', '')
-            
+            pregunta = item.get("pregunta", "")
+            respuesta = item.get("respuesta", "")
+
             row_cells = tabla.add_row().cells
             row_cells[0].text = pregunta
             row_cells[1].text = respuesta
@@ -152,7 +159,14 @@ def generar_orden_medica_web(
     Función para entornos web: genera la orden médica usando la función original y devuelve
     la ruta del archivo generado para que se pueda descargar desde la aplicación web.
     """
-    archivo = generar_orden_medica(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico)
+    archivo = generar_orden_medica(
+        openai_client,
+        datos_paciente,
+        sintomas,
+        respuestas_adicionales,
+        base_conocimiento,
+        respuesta_asistente_medico,
+    )
     return archivo
 
 
@@ -161,10 +175,10 @@ if __name__ == "__main__":
     # Simulación de datos de entrada para modo escritorio
     openai_client = None  # Se puede pasar None o un objeto de OpenAI si se requiere
     datos_paciente = {
-        'nombre': 'Juan Pérez',
-        'edad': '35',
-        'peso': '80kg',
-        'rut': '12.345.678-9'
+        "nombre": "Juan Pérez",
+        "edad": "35",
+        "peso": "80kg",
+        "rut": "12.345.678-9",
     }
     sintomas = "El paciente presenta dolor abdominal, fiebre y náuseas."
 
@@ -176,19 +190,39 @@ if __name__ == "__main__":
     #
     # O con una lista de diccionarios:
     respuestas_adicionales = [
-        {'pregunta': 'Claro, aquí tienes cinco preguntas relevantes para obtener más información sobre el dolor abdominal del paciente:', 'respuesta': ''},
-        {'pregunta': '1. ¿Desde hace cuánto tiempo ha estado experimentando este dolor en la "guata" y cómo describiría la intensidad del dolor en una escala del 1 al 10?', 'respuesta': '2 dias intensidad 7'},
-        {'pregunta': '2. ¿El dolor es constante o intermitente? ¿Hay algún momento del día en que se sienta peor?', 'respuesta': 'constante'},
-        {'pregunta': '3. ¿Ha notado algún cambio en sus hábitos intestinales, como diarrea, estreñimiento o presencia de sangre en las heces?', 'respuesta': 'no'},
-        {'pregunta': '4. ¿Ha experimentado otros síntomas asociados, como náuseas, vómitos, pérdida de apetito, fiebre o pérdida de peso reciente?', 'respuesta': 'vomitos'},
-        {'pregunta': '5. ¿Tiene antecedentes médicos relevantes, como enfermedades gastrointestinales, cirugías previas o condiciones crónicas como diabetes o hipertensión?', 'respuesta': 'no'}
+        {
+            "pregunta": "Claro, aquí tienes cinco preguntas relevantes para obtener más información sobre el dolor abdominal del paciente:",
+            "respuesta": "",
+        },
+        {
+            "pregunta": '1. ¿Desde hace cuánto tiempo ha estado experimentando este dolor en la "guata" y cómo describiría la intensidad del dolor en una escala del 1 al 10?',
+            "respuesta": "2 dias intensidad 7",
+        },
+        {
+            "pregunta": "2. ¿El dolor es constante o intermitente? ¿Hay algún momento del día en que se sienta peor?",
+            "respuesta": "constante",
+        },
+        {
+            "pregunta": "3. ¿Ha notado algún cambio en sus hábitos intestinales, como diarrea, estreñimiento o presencia de sangre en las heces?",
+            "respuesta": "no",
+        },
+        {
+            "pregunta": "4. ¿Ha experimentado otros síntomas asociados, como náuseas, vómitos, pérdida de apetito, fiebre o pérdida de peso reciente?",
+            "respuesta": "vomitos",
+        },
+        {
+            "pregunta": "5. ¿Tiene antecedentes médicos relevantes, como enfermedades gastrointestinales, cirugías previas o condiciones crónicas como diabetes o hipertensión?",
+            "respuesta": "no",
+        },
     ]
-    
-    base_conocimiento = "Base de datos de conocimiento médico."  # No se utiliza en este ejemplo
+
+    base_conocimiento = (
+        "Base de datos de conocimiento médico."  # No se utiliza en este ejemplo
+    )
     respuesta_asistente_medico = {
-        'analisis': "Los síntomas sugieren una posible infección gastrointestinal.",
-        'diagnostico': "Gastroenteritis aguda.",
-        'recomendacion': "Se recomienda reposo, hidratación y, en caso de empeoramiento, acudir a urgencias."
+        "analisis": "Los síntomas sugieren una posible infección gastrointestinal.",
+        "diagnostico": "Gastroenteritis aguda.",
+        "recomendacion": "Se recomienda reposo, hidratación y, en caso de empeoramiento, acudir a urgencias.",
     }
 
     generar_orden_medica(
