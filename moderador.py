@@ -10,11 +10,16 @@ Funciones disponibles:
 
 import os
 
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 from openai import OpenAI
+from rich import traceback
+
+# Activa traceback para mejorar la depuración de excepciones
+traceback.install()
 
 # Load the environment variables from .env file
-load_dotenv()
+if load_dotenv(find_dotenv(usecwd=True)):
+    print("Archivo '.env' cargado exitosamente.")
 
 # Configuración de las keys para APIs
 openai_api_key = os.environ.get("OPENAI_API_KEY")
@@ -193,7 +198,9 @@ def analisis_moderador_generico(
     return true_categories
 
 
-def moderacion_pasada_web(client, datos_paciente_json, sintomas, respuestas_adicionales_json):
+def moderacion_pasada_web(
+    client, datos_paciente_json, sintomas, respuestas_adicionales_json
+):
     """
     Realiza la revisión de moderación utilizando la función analisis_moderador_generico.
     Devuelve una tupla (paso_moderacion, true_categories):
@@ -201,7 +208,9 @@ def moderacion_pasada_web(client, datos_paciente_json, sintomas, respuestas_adic
                          False en caso contrario.
       - true_categories: Lista de categorías problemáticas detectadas (vacía si no hay ninguna).
     """
-    true_categories = analisis_moderador_generico(client, datos_paciente_json, sintomas, respuestas_adicionales_json)
+    true_categories = analisis_moderador_generico(
+        client, datos_paciente_json, sintomas, respuestas_adicionales_json
+    )
     if true_categories:
         return False, true_categories
     else:
