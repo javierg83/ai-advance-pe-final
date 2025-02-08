@@ -5,6 +5,7 @@
 import argparse
 import logging
 import os
+import json
 from datetime import timedelta
 
 import openai
@@ -30,7 +31,7 @@ import generacionOrdenMedica
 import moderador
 import supervisorMedico
 
-# activa traceback para mejorar la depuración de excepciones
+# Activa traceback para mejorar la depuración de excepciones
 traceback.install()
 
 # Constantes
@@ -38,10 +39,10 @@ DURACION_SESION = 7
 """Duración máxima de la sesión en minutos"""
 
 PUERTO_DEFAULT = 8000
-""" Puerto por defecto para el servidor web de Flask """
+"""Puerto por defecto para el servidor web de Flask"""
 
 HOST_DEFAULT = "localhost"
-""" Host por defecto para el servidor web de Flask """
+"""Host por defecto para el servidor web de Flask"""
 
 # ----------------------------
 # Configuración de Logging
@@ -54,7 +55,6 @@ logging.basicConfig(
 # ----------------------------
 # Cargar variables de entorno y configurar OpenAI
 # ----------------------------
-# Buscar el archivo .env en los lugares posibles
 try:
     path_env = find_dotenv(usecwd=True, raise_error_if_not_found=True)
 except OSError as e:
@@ -78,7 +78,6 @@ openai.api_key = openai_api_key
 
 # Definir el objeto openai_client (para evitar posibles conflictos de nombres)
 openai_client = openai
-
 
 # ----------------------------
 # Flujo CLI (Modo Consola)
@@ -133,15 +132,41 @@ def main():
         # print("\n--- Recomendación Médica ---")
         # print(respuesta_asistente_medico)
 
-    # Paso 7: Llamadas adicionales
+    # Paso 7: Llamadas adicionales (Supervisor Médico)
+    nivel_de_certeza = 0  # Valor por defecto
     if usoSupervisorMedico:
-        print("1")
-        respuesta_supervisor = supervisorMedico.revision_recomendacion_medica(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico)
-        print("2")
-        print("respuesta_supervisor="+respuesta_supervisor)
-        print("3")
+        respuesta_supervisor_json = supervisorMedico.revision_recomendacion_medica(
+            openai_client,
+            datos_paciente,
+            sintomas,
+            respuestas_adicionales,
+            base_conocimiento,
+            respuesta_asistente_medico
+        )
+        
+        # Si la respuesta incluye delimitadores Markdown, eliminarlos.
+        if respuesta_supervisor_json.startswith("```"):
+            primer_salto = respuesta_supervisor_json.find("\n")
+            ultimos_backticks = respuesta_supervisor_json.rfind("```")
+            if primer_salto != -1 and ultimos_backticks != -1:
+                respuesta_supervisor_json = respuesta_supervisor_json[primer_salto:ultimos_backticks].strip()
 
-    if usoGeneracionOrdenMedica:
+        # Parsear la respuesta JSON para obtener el nivel de certeza
+        try:
+            if isinstance(respuesta_supervisor_json, str):
+                data = json.loads(respuesta_supervisor_json)
+            else:
+                data = respuesta_supervisor_json
+            nivel_de_certeza = data.get("nivel_de_certeza", 0)
+        except json.JSONDecodeError as e:
+            print("Error al parsear la respuesta JSON:", e)
+            nivel_de_certeza = 0
+
+        print("El nivel de certeza es:", nivel_de_certeza)
+        print("respuesta_supervisor=" + respuesta_supervisor_json)
+
+    # Generar la orden médica solo si se cumple la condición adicional
+    if usoGeneracionOrdenMedica and nivel_de_certeza > 80:
         generacionOrdenMedica.generar_orden_medica(
             openai_client,
             datos_paciente,
@@ -150,6 +175,8 @@ def main():
             base_conocimiento,
             respuesta_asistente_medico,
         )
+    else:
+        print("Estimado paciente, con la información entregada no podemos generar una recomendación médica, por lo que debe asistir a un centro asistencial de forma presencial.")
 
 
 # ----------------------------
@@ -225,7 +252,7 @@ def preguntas():
     sintomas = session.get("sintomas")
 
     app.logger.debug(f"Datos en sesión: {datos}")
-    app.logger.debug(f"Síntomas en sesión: {sintomas}")
+    app.logger.debug(f"Sintomas en sesión: {sintomas}")
 
     # Forzar la generación de nuevas preguntas para depuración:
     if "preguntas" in session:
@@ -279,43 +306,86 @@ def resultado():
         respuestas
     )
 
-    if not moderacion_ok:
-        conclusion = (
-            "La consulta no cumple con las normas de moderación. Categorías detectadas: "
-            + ", ".join(categorias)
-        )
-        base_conocimiento = ""
+    # Variables iniciales
+    base_conocimiento = ""
+    respuesta_asistente_medico = ""
+    supervisor_response = ""
+    nivel_de_certeza = 0
+    orden_filepath = ""
 
+    if not moderacion_ok:
+        # Si la moderación falla, se puede notificar al usuario y detener el flujo
+        app.logger.debug(
+            "La consulta no cumple con las normas de moderación. Categorías detectadas: " +
+            ", ".join(categorias)
+        )
+        respuesta_asistente_medico = "Consulta rechazada por moderación."
     else:
-        # Paso 2: Búsqueda en Redis
+        # Paso 2: Búsqueda en base de conocimiento
         base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento(
             openai_client, sintomas, respuestas
         )
-
         # Paso 3: Recomendación médica web
         respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica_web(
             openai_client, datos, sintomas, respuestas, base_conocimiento
         )
-
-        # Paso 4: Generar la orden médica y guardar la ruta en la sesión
-        orden_filepath = generacionOrdenMedica.generar_orden_medica_web(
+        # Paso 4: Llamada al Supervisor Médico para validar la recomendación
+        supervisor_response = supervisorMedico.revision_recomendacion_medica(
             openai_client,
             datos,
             sintomas,
             respuestas,
             base_conocimiento,
-            respuesta_asistente_medico,
+            respuesta_asistente_medico
         )
+        # Eliminar delimitadores Markdown, si existen
+        if supervisor_response.startswith("```"):
+            primer_salto = supervisor_response.find("\n")
+            ultimos_backticks = supervisor_response.rfind("```")
+            if primer_salto != -1 and ultimos_backticks != -1:
+                supervisor_response = supervisor_response[primer_salto:ultimos_backticks].strip()
+
+        # Parsear la respuesta JSON para extraer el nivel de certeza
+        try:
+            if isinstance(supervisor_response, str):
+                data = json.loads(supervisor_response)
+            else:
+                data = supervisor_response
+            nivel_de_certeza = data.get("nivel_de_certeza", 0)
+        except json.JSONDecodeError as e:
+            app.logger.error("Error al parsear la respuesta JSON: " + str(e))
+            nivel_de_certeza = 0
+
+        app.logger.debug("El nivel de certeza es: " + str(nivel_de_certeza))
+        
+        # Paso 5: Generación de la orden médica solo si el nivel de certeza es mayor a 80
+        if nivel_de_certeza > 80:
+            orden_filepath = generacionOrdenMedica.generar_orden_medica_web(
+                openai_client,
+                datos,
+                sintomas,
+                respuestas,
+                base_conocimiento,
+                respuesta_asistente_medico,
+            )
+        else:
+            # Se puede notificar al paciente que, con la información entregada, no se genera orden médica.
+            respuesta_asistente_medico += (
+                "\nEstimado paciente, con la información entregada no podemos generar una recomendación médica, "
+                "por lo que debe asistir a un centro asistencial de forma presencial."
+            )
 
     session["orden_filepath"] = orden_filepath
 
     return render_template(
         "resultado.html",
         datos=datos,
-        sintomas=sintomas,
+        síntomas=sintomas,
         respuestas=respuestas,
         respuesta_asistente_medico=respuesta_asistente_medico,
         orden_filepath=orden_filepath,
+        nivel_de_certeza=nivel_de_certeza,
+        supervisor_response=supervisor_response
     )
 
 
@@ -370,5 +440,5 @@ if __name__ == "__main__":
 # python main.py
 
 # Ejecutar como servidor web:
-# python main.py --runserver --port 8000 --host localhost
+# python main.py --server --port 8000 --host localhost
 # http://localhost:8000/
