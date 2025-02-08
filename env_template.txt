@@ -13,3 +13,6 @@ REDIS_INDEX="XXXXXX"
 
 # Configuraciones OpenAI
 GPT_KEY="sk-proj-XXXXXXXX"
+
+# Configuraciones para Flask
+FLASK_SECRET_KEY="XXXXXXXXXXXXXXX"

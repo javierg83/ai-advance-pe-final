@@ -54,24 +54,15 @@ logging.basicConfig(
 # ----------------------------
 # Cargar variables de entorno y configurar OpenAI
 # ----------------------------
-# Buscar el archivo .env en los lugares posibles
-try:
-    path_env = find_dotenv(usecwd=True, raise_error_if_not_found=True)
-except OSError as e:
-    print(
-        f"[bold red]{e}: '.env'.[/bold red]",
-        "[bold red]Abortando...[/bold red]",
-        sep="\n",
-    )
-    exit(1)
-
-load_dotenv()
+if load_dotenv(find_dotenv(usecwd=True)):
+    logging.debug("Archivo '.env' cargado exitosamente.")
 
 openai_api_key = os.environ.get("OPENAI_API_KEY")
 if openai_api_key:
     logging.debug("OPENAI_API_KEY cargada correctamente.")
 else:
-    logging.error("OPENAI_API_KEY NO está definida. Revisa el archivo .env")
+    logging.error("OPENAI_API_KEY NO está definida. Revisa el entorno y/o el archivo '.env'.")
+    exit(1)
 
 # Configurar la API key para la librería de OpenAI
 openai.api_key = openai_api_key
@@ -335,7 +326,7 @@ def Lee_Parametros() -> tuple[bool, int, str]:
         add_help=True,
     )
     parser.add_argument(
-        "--server",
+        "--runserver",
         action="store_true",
         default=False,
         help="Ejecutar el servidor web de Flask; sino, se ejecuta en modo consola.",
@@ -344,16 +335,18 @@ def Lee_Parametros() -> tuple[bool, int, str]:
         "--port",
         type=int,
         default=PUERTO_DEFAULT,
+        required=False,
         help=f"Puerto para el servidor web de Flask, default: {PUERTO_DEFAULT}.",
     )
     parser.add_argument(
         "--host",
         default=HOST_DEFAULT,
+        required=False,
         help=f"Host para el servidor web de Flask, default: {HOST_DEFAULT}.",
     )
     args = parser.parse_args()
 
-    return args.server, args.port, args.host
+    return args.runserver, args.port, args.host
 
 
 # ----------------------------
