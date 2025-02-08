@@ -71,6 +71,7 @@ openai.api_key = openai_api_key
 # Definir el objeto openai_client (para evitar posibles conflictos de nombres)
 openai_client = openai
 
+
 # ----------------------------
 # Flujo CLI (Modo Consola)
 # ----------------------------
@@ -201,6 +202,9 @@ def registro():
         if errores:
             return render_template("registro.html", errores=errores, datos=request.form)
 
+        # Marcar la sesión como modificada y no permanente
+        session.modified = True
+        session.permanent = False
         session["datos"] = {
             "nombre": nombre,
             "rut": rut,
@@ -208,9 +212,6 @@ def registro():
             "edad": edad,
             "peso": peso,
         }
-        # Marcar la sesión como modificada y no permanente
-        session.modified = True
-        session.permanent = False
 
         return redirect(url_for("sintomas"))
 
@@ -222,6 +223,7 @@ def registro():
 @app.route("/sintomas", methods=["GET", "POST"])
 def sintomas():
     if "datos" not in session:
+        app.logger.debug("Falta información en la sesión. Redirigiendo a registro.")
         return redirect(url_for("registro"))
 
     if request.method == "POST":
@@ -244,7 +246,7 @@ def preguntas():
     sintomas = session.get("sintomas")
 
     app.logger.debug(f"Datos en sesión: {datos}")
-    app.logger.debug(f"Sintomas en sesión: {sintomas}")
+    app.logger.debug(f"Síntomas en sesión: {sintomas}")
 
     # Forzar la generación de nuevas preguntas para depuración:
     if "preguntas" in session:
@@ -372,7 +374,7 @@ def resultado():
     return render_template(
         "resultado.html",
         datos=datos,
-        síntomas=sintomas,
+        sintomas=sintomas,
         respuestas=respuestas,
         respuesta_asistente_medico=respuesta_asistente_medico,
         orden_filepath=orden_filepath,
@@ -434,5 +436,5 @@ if __name__ == "__main__":
 # python main.py
 
 # Ejecutar como servidor web:
-# python main.py --server --port 8000 --host localhost
+# python main.py --runserver --port 8000 --host localhost
 # http://localhost:8000/
