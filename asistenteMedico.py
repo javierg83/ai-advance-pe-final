@@ -25,7 +25,8 @@ Instrucciones para la respuesta:
 1. Proporciona un análisis detallado de los síntomas y factores del paciente.
 2. Enuncia posibles diagnósticos.
 3. Ofrece recomendaciones o sugerencias de pasos siguientes (consultas, pruebas, medidas básicas de cuidado), indicando medicamentos específicos si fuera necesario.
-4. Si la certeza del diagnóstico es mayor al 80%, concluye la sesión sin más preguntas.
+4. Genera una lista de examenes o procedimientos medicos sugeridos que ayudar a confirmar el diagnostico.
+5. Si la certeza del diagnóstico es mayor al 80%, concluye la sesión sin más preguntas.
 
 Nota: La información proporcionada es solo para fines de orientación y no debe considerarse como consejo médico definitivo.
 """
