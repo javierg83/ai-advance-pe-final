@@ -158,7 +158,7 @@ def main():
         print("respuesta_supervisor=" + respuesta_supervisor_json)
 
     # Generar la orden médica solo si se cumple la condición adicional
-    if usoGeneracionOrdenMedica and nivel_de_certeza > 80:
+    if usoGeneracionOrdenMedica and nivel_de_certeza > 70:
         generacionOrdenMedica.generar_orden_medica(
             openai_client,
             datos_paciente,
@@ -318,10 +318,12 @@ def resultado():
             openai_client, sintomas, respuestas
         )
         # Paso 3: Recomendación médica web
+        app.logger.debug("Asistente Medico Iniciando")
         respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica_web(
             openai_client, datos, sintomas, respuestas, base_conocimiento
         )
         # Paso 4: Llamada al Supervisor Médico para validar la recomendación
+        app.logger.debug("Analisis de Supervisor Medico")
         supervisor_response = supervisorMedico.revision_recomendacion_medica(
             openai_client,
             datos,
@@ -331,6 +333,7 @@ def resultado():
             respuesta_asistente_medico
         )
         # Eliminar delimitadores Markdown, si existen
+        
         if supervisor_response.startswith("```"):
             primer_salto = supervisor_response.find("\n")
             ultimos_backticks = supervisor_response.rfind("```")
@@ -348,10 +351,11 @@ def resultado():
             app.logger.error("Error al parsear la respuesta JSON: " + str(e))
             nivel_de_certeza = 0
 
-        app.logger.debug("El nivel de certeza es: " + str(nivel_de_certeza))
+        app.logger.debug("Supervisor Medico - El nivel de certeza es: " + str(nivel_de_certeza))
         
         # Paso 5: Generación de la orden médica solo si el nivel de certeza es mayor a 80
-        if nivel_de_certeza > 80:
+        if nivel_de_certeza >= 70:
+            app.logger.debug("Generación Orden Medica - Iniciando:")
             orden_filepath = generacionOrdenMedica.generar_orden_medica_web(
                 openai_client,
                 datos,
@@ -366,6 +370,7 @@ def resultado():
                 "\nEstimado paciente, con la información entregada no podemos generar una recomendación médica, "
                 "por lo que debe asistir a un centro asistencial de forma presencial."
             )
+            app.logger.debug("respuesta_asistente_medico="+respuesta_asistente_medico)
 
     session["orden_filepath"] = orden_filepath
 

@@ -6,6 +6,7 @@ Este módulo contiene las funciones y componenetes necesarios para conexion con 
 """
 
 import numpy as np
+import os
 from redis import Redis
 from redis.commands.search.query import Query
 

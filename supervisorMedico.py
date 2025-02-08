@@ -33,7 +33,7 @@ En caso contrario, debes recomendar acudir a un médico para una evaluación pre
    - Si la certeza es ≥ 70%, proporciona diagnóstico, tratamiento y órdenes clínicas.
    - Si la certeza es < 70%, recomienda acudir a consulta presencial.
 
-### **Formato de respuesta esperado:**
+### **Formato de respuesta JSON:**
 1. **Nivel de certeza (%)**
 2. **Síntesis de antecedentes**
 3. **Diagnóstico o recomendación de acudir al médico**
