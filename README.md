@@ -4,6 +4,8 @@ Entrega Final Trabajo Curso Advanced Prompt Engineering
 
 Este repositorio contiene el código fuente para un Asistente Médico basado en Inteligencia Artificial. El sistema permite la interacción con un paciente, recogiendo sus datos personales, síntomas y realizando una recomendación médica a través de una IA, junto con la generación de una orden médica.
 
+Este proyecto es parte del curso Advanced Prompt Engineering y tiene como objetivo demostrar la integración de modelos de lenguaje, moderación de contenido y generación de recomendaciones médicas en un entorno de producción.
+
 ### Tabla de Contenidos
 1. Instalación(#instalación)
 2. Uso(#uso)
@@ -23,8 +25,8 @@ Para instalar el Asistente Médico en tu entorno local en Python, sigue los sigu
 ### Pasos de instalación:
 1. **Clona el repositorio:**
    ```bash
-   git clone https://github.com/usuario/asistente-medico.git
-   cd asistente-medico
+   git clone https://github.com/usuario/asistenteMedico.git
+   cd asistenteMedico
    ```
 
 2. **Crea un entorno virtual (opcional pero recomendado):**
@@ -88,7 +90,6 @@ El asistente médico puede ser ejecutado en dos modos:
 
 4. **Ejecuta el servidor:**
    Para desplegar en producción, utilizaremos Flask
-   ```
 
    Esto ejecutará la aplicación en un entorno adecuado para producción.
 
@@ -125,4 +126,4 @@ pip install -r requirements.txt
 
 ## Licencia
 
-Este proyecto está bajo la Licencia MIT - consulta el archivo [LICENSE](LICENSE) para más detalles.
+Este proyecto está bajo la Apache License 2.0. Consulta el archivo LICENSE para más detalles.
