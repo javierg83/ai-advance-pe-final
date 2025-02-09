@@ -2,42 +2,50 @@
 
 ## Requisitos Previos
 
-- Python 3.10.11
+- Python 3.10
 - Gestor de paquetes `pip`
 - Windows 10 o superior
 
 ## Pasos de Instalación
 
-1. Clonar el repositorio y navegar al directorio del proyecto:
+1. Clonar el repositorio y navegar al directorio del proyecto
 
     ```powershell
     git clone 'https://github.com/javierg83/ai-advance-pe-final.git'
     cd 'ai-advance-pe-final'
     ```
 
-2. Crear y activar un entorno virtual:
+2. Crear y activar un entorno virtual
 
     ```powershell
     python -m venv .venv
     .venv\Scripts\activate
     ```
 
-3. Instalar paquetes requeridos desde `requirements.txt`:
+3. Instalar paquetes requeridos desde `requirements.txt`
 
     ```powershell
     pip install -r requirements.txt
     ```
 
-## Ejecutar la Aplicación
+4. Configurar las variables de entorno
 
-Para iniciar la aplicación:
+   Se configuran creando un archivo `.env` en el mismo directorio del proyecto, con el siguiente patrón:
 
-```powershell
-uvicorn main:app --host=0.0.0.0 --port=8000
-```
+    ```bash
+    # reemplaza con tu clave_api_de_openai
+    OPENAI_API_KEY="XXXXXXXXXXXXXXXXXXXXXXXX"
 
-### Notas
+    # reemplaza con tus datos y claves de Redis
+    REDIS_HOST="XXXXXXXXXXXXXXXX"
+    REDIS_PORT="000"
+    REDIS_DB=000
+    REDIS_PASSWORD="XXXXXXXXXXXXXXXX"
+    REDIS_USERNAME="XXXX"
+    REDIS_INDEX="XXXX"
 
-- El puerto puede configurarse usando la variable de entorno PORT.
-- Asegúrese de tener todas las variables de entorno configuradas antes de ejecutar.
-- Para desarrollo local, puede usar `uvicorn main:app --reload`.
+    # genera una clave muy secreta para el servidor web
+    FLASK_SECRET_KEY="XXXXXXXXXXXXXXXX"
+    ```
+
+    Para mayor conveniencia, existe un template de este archivo llamado [`env-emplate.txt`](env-emplate.txt), al cual le puedes cambiar el nombre a `.env`, y completar con tus claves propias.
