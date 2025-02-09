@@ -1,284 +1,220 @@
-#!/usr/bin/env python
-"""
-Este módulo se encarga de la generación de una orden médica en formato Word,
-a partir de la información proporcionada por el usuario y el asistente médico.
-"""
+from fpdf import FPDF
+import os
+import openai
+import re  # Para extraer solo números de la respuesta
+import math  # Para el cálculo de líneas en celdas
+from datetime import datetime  # Para generar la fecha en el nombre del archivo
 
-import re
-from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Pt
-
-
-def agregar_separador(document):
+def obtener_codigo_prestacion(examen_nombre):
     """
-    Agrega un separador visual (una línea de guiones) al documento.
+    Función que obtiene el código de prestación médica desde la API de OpenAI.
     """
-    parrafo_sep = document.add_paragraph()
-    run_sep = parrafo_sep.add_run("-" * 80)
-    run_sep.font.size = Pt(10)
-    parrafo_sep.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-
-def parse_respuesta_asistente_medico(respuesta):
-    """
-    Parsea la respuesta del asistente médico y extrae las 3 secciones:
-    
-      - Análisis de síntomas y factores del paciente
-      - Posibles diagnósticos
-      - Recomendaciones
-    
-    La variable 'respuesta' puede ser un diccionario o una cadena formateada.
-    """
-    if isinstance(respuesta, dict):
-        analisis = respuesta.get("analisis", "")
-        diagnostico = respuesta.get("diagnostico", "")
-        recomendacion = respuesta.get("recomendacion", "")
-    elif isinstance(respuesta, str):
-        # Expresión regular para extraer el contenido entre los encabezados.
-        pattern = (
-            r"\*\*Análisis de\s*síntomas y factores del paciente:\*\*(.*?)"
-            r"\*\*Posibles diagnósticos:\*\*(.*?)"
-            r"\*\*Recomendaciones:\*\*(.*)"
-        )
-        match = re.search(pattern, respuesta, re.DOTALL)
-        if match:
-            analisis = match.group(1).strip()
-            diagnostico = match.group(2).strip()
-            recomendacion = match.group(3).strip()
-        else:
-            # Si no se encuentra el patrón esperado, se asigna la cadena completa a analisis
-            analisis = respuesta.strip()
-            diagnostico = ""
-            recomendacion = ""
+    client = openai.OpenAI()  # Inicializar el cliente
+    prompt = (
+        f"Dado el siguiente examen médico: '{examen_nombre}', proporciona únicamente el código de prestación de salud en Chile. "
+        f"El código es un número y no debe incluir texto adicional."
+    )
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "Eres un asistente especializado en el catálogo de prestaciones de salud en Chile."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    respuesta_texto = response.choices[0].message.content.strip()
+    codigo_numerico = re.search(r"\b\d+\b", respuesta_texto)
+    if codigo_numerico:
+        return codigo_numerico.group(0)
     else:
-        analisis = diagnostico = recomendacion = ""
-    
-    return analisis, diagnostico, recomendacion
+        return "Código no encontrado"
 
-
-def generar_orden_medica(
-    openai_client,
-    datos_paciente,
-    sintomas,
-    respuestas_adicionales,
-    base_conocimiento,
-    respuesta_asistente_medico,
-) -> str:
+def generar_orden_medica_pdf(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico):
     """
-    Genera una orden médica en formato Word a partir de la información proporcionada.
-
-    Parámetros:
-    ----------
-    openai_client : 
-        objeto cliente (para futuras integraciones).
-    datos_paciente : 
-        diccionario con los datos del paciente.
-    sintomas : 
-        cadena de texto con los síntomas ingresados por el paciente.
-    respuestas_adicionales : 
-        diccionario o lista de diccionarios con pares pregunta-respuesta.
-    base_conocimiento : 
-        información o referencia (no se utiliza en este ejemplo).
-    respuesta_asistente_medico : dict o str
-        Puede ser un diccionario con claves 'analisis', 'diagnostico' y 'recomendacion',
-        o una cadena formateada con los encabezados:
-          **Análisis de síntomas y factores del paciente:**
-          **Posibles diagnósticos:**
-          **Recomendaciones:**
-    
-    Retorna
-    -------
-    str
-        Nombre del archivo generado.
+    Genera una orden médica en formato PDF utilizando la información del paciente y
+    la respuesta del asistente médico. Se espera que 'respuesta_asistente_medico' sea un
+    diccionario con las siguientes claves:
+      - analisis
+      - diagnosticos
+      - recomendaciones
+      - examenes (lista de diccionarios, cada uno con 'nombre')
+      - conclusion
     """
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
     
-    document = Document()
+    # Agregar logo si existe
+    logo_path = os.path.join("static", "logo.png")
+    if os.path.exists(logo_path):
+        pdf.image(logo_path, x=10, y=10, w=40)
+    
+    pdf.ln(20)
+    pdf.set_font("Arial", style='B', size=18)
+    pdf.cell(210, 10, "ORDEN MÉDICA", ln=True, align='C')
+    pdf.ln(10)
+    
+    # Datos del Paciente
+    pdf.set_font("Arial", style='B', size=12)
+    pdf.cell(0, 10, "Datos del Paciente:", ln=True)
+    pdf.set_font("Arial", size=12)
+    pdf.cell(0, 8, f"Nombre: {datos_paciente.get('nombre', '')}", ln=True)
+    pdf.cell(0, 8, f"Edad: {datos_paciente.get('edad', '')}", ln=True)
+    pdf.cell(0, 8, f"Peso: {datos_paciente.get('peso', '')}", ln=True)
+    pdf.cell(0, 8, f"RUT: {datos_paciente.get('rut', '')}", ln=True)
+    pdf.ln(5)
+    
+    # Separador
+    pdf.set_draw_color(0, 0, 255)
+    pdf.cell(0, 1, "", ln=True, fill=True)
+    pdf.ln(5)
+    
+    # Síntomas reportados
+    pdf.set_font("Arial", style='B', size=12)
+    pdf.cell(0, 10, "Síntomas reportados:", ln=True)
+    pdf.set_font("Arial", size=12)
+    sintomas_texto = "\n".join(sintomas) if isinstance(sintomas, list) else sintomas
+    pdf.multi_cell(0, 8, sintomas_texto)
+    pdf.ln(5)
+    
+    # Preguntas adicionales
+    pdf.set_font("Arial", style='B', size=12)
+    pdf.cell(95, 10, "Pregunta", 1, 0, 'C', True)
+    pdf.cell(95, 10, "Respuesta", 1, 1, 'C', True)
+    pdf.set_font("Arial", size=12)
+    
+    # Función auxiliar para calcular el número de líneas que ocupará un texto en una celda de ancho 'w'
+    def nb_lines(pdf_obj, w, txt):
+        # Divide el texto en líneas (por saltos de línea) y calcula cuántas líneas se requerirán
+        lines = txt.split("\n")
+        total = 0
+        for line in lines:
+            if not line:
+                total += 1
+            else:
+                total += math.ceil(pdf_obj.get_string_width(line) / w)
+        return total
 
-    # Configurar fuente base (ej. Arial 12 pt)
-    estilo = document.styles["Normal"]
-    estilo.font.name = "Arial"
-    estilo.font.size = Pt(12)
-
-    # Título principal
-    titulo = document.add_paragraph()
-    titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run_titulo = titulo.add_run("ORDEN MÉDICA")
-    run_titulo.bold = True
-    run_titulo.font.size = Pt(16)
-
-    document.add_paragraph()  # Línea en blanco
-
-    # Sección: Datos del Paciente
-    encabezado_paciente = document.add_paragraph()
-    encabezado_paciente.add_run("Datos del Paciente:\n").bold = True
-    encabezado_paciente.add_run(f"Nombre: {datos_paciente.get('nombre', '')}\n")
-    encabezado_paciente.add_run(f"Edad: {datos_paciente.get('edad', '')}\n")
-    encabezado_paciente.add_run(f"Peso: {datos_paciente.get('peso', '')}\n")
-    encabezado_paciente.add_run(f"RUT: {datos_paciente.get('rut', '')}\n")
-
-    agregar_separador(document)
-
-    # Sección: Síntomas y Preguntas Adicionales
-    parrafo_sintomas = document.add_paragraph()
-    parrafo_sintomas.add_run("Síntomas reportados por el paciente:\n").bold = True
-    parrafo_sintomas.add_run(sintomas)
-
-    document.add_paragraph()  # Espacio antes de la tabla
-
-    # Crear la tabla para preguntas adicionales
-    tabla = document.add_table(rows=1, cols=2)
-    tabla.style = "LightShading-Accent1"
-
-    # Encabezados de la tabla
-    hdr_cells = tabla.rows[0].cells
-    hdr_cells[0].text = "Pregunta"
-    hdr_cells[1].text = "Respuesta"
-
-    # Agregar cada par pregunta-respuesta según el tipo de dato
-    if isinstance(respuestas_adicionales, dict):
-        for pregunta, respuesta in respuestas_adicionales.items():
-            row_cells = tabla.add_row().cells
-            row_cells[0].text = pregunta
-            row_cells[1].text = respuesta
-    elif isinstance(respuestas_adicionales, list):
-        for item in respuestas_adicionales:
-            pregunta = item.get("pregunta", "")
-            respuesta = item.get("respuesta", "")
-            row_cells = tabla.add_row().cells
-            row_cells[0].text = pregunta
-            row_cells[1].text = respuesta
+    col_width = 95
+    line_height = 8
+    for item in respuestas_adicionales:
+        pregunta_text = item.get('pregunta', '')
+        respuesta_text = item.get('respuesta', '')
+        n_lines_pregunta = nb_lines(pdf, col_width, pregunta_text)
+        n_lines_respuesta = nb_lines(pdf, col_width, respuesta_text)
+        row_lines = max(n_lines_pregunta, n_lines_respuesta)
+        # Guardamos la posición inicial
+        x_initial = pdf.get_x()
+        y_initial = pdf.get_y()
+        
+        # Dibujar la celda de "Pregunta" con multi_cell para que envuelva el texto
+        pdf.multi_cell(col_width, line_height, pregunta_text, border=1)
+        y_after_pregunta = pdf.get_y()
+        
+        # Volver a la misma línea para la celda "Respuesta"
+        pdf.set_xy(x_initial + col_width, y_initial)
+        pdf.multi_cell(col_width, line_height, respuesta_text, border=1)
+        
+        # Establecer la posición para la siguiente fila
+        y_after_row = max(pdf.get_y(), y_after_pregunta)
+        pdf.set_xy(x_initial, y_after_row)
+    pdf.ln(5)
+    
+    # Separador
+    pdf.cell(0, 1, "", ln=True, fill=True)
+    pdf.ln(5)
+    
+    # Información del Asistente Médico
+    pdf.set_font("Arial", style='B', size=12)
+    pdf.cell(0, 10, "Informe del Asistente Médico:", ln=True)
+    pdf.ln(5)
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 8, "Análisis de Síntomas y Factores del Paciente:\n" +
+                         respuesta_asistente_medico.get('analisis', ''))
+    pdf.ln(5)
+    pdf.multi_cell(0, 8, "Posibles Diagnósticos:\n" +
+                         respuesta_asistente_medico.get('diagnosticos', ''))
+    pdf.ln(5)
+    pdf.multi_cell(0, 8, "Recomendaciones y Pasos Siguientes:\n" +
+                         respuesta_asistente_medico.get('recomendaciones', ''))
+    pdf.ln(5)
+    pdf.cell(0, 10, "Exámenes o Procedimientos Médicos Sugeridos:", ln=True)
+    pdf.ln(2)
+    examenes = respuesta_asistente_medico.get('examenes', [])
+    if isinstance(examenes, list):
+        for examen in examenes:
+            codigo = obtener_codigo_prestacion(examen.get('nombre', ''))
+            pdf.multi_cell(0, 8, f"{examen.get('nombre', '')} (Código: {codigo})", border=1)
     else:
-        row_cells = tabla.add_row().cells
-        row_cells[0].text = "No se proporcionaron datos válidos."
-        row_cells[1].text = ""
-
-    agregar_separador(document)
-
-    # Sección: Datos del Asistente Médico
-    parrafo_asistente = document.add_paragraph()
-    parrafo_asistente.add_run("Datos generados por el Asistente Médico:\n").bold = True
-
-    # Extraer las tres partes (analisis, diagnostico y recomendacion)
-    analisis_text, diagnostico_text, recomendacion_text = parse_respuesta_asistente_medico(respuesta_asistente_medico)
-
-    # 1. Análisis de síntomas y factores del paciente:
-    parrafo_analisis = document.add_paragraph()
-    parrafo_analisis.add_run("Análisis de síntomas y factores del paciente:\n").bold = True
-    parrafo_analisis.add_run(analisis_text)
-
-    document.add_paragraph()  # Espacio
-
-    # 2. Posibles diagnósticos:
-    parrafo_diagnostico = document.add_paragraph()
-    parrafo_diagnostico.add_run("Posibles diagnósticos:\n").bold = True
-    parrafo_diagnostico.add_run(diagnostico_text)
-
-    document.add_paragraph()  # Espacio
-
-    # 3. Recomendaciones:
-    parrafo_recomendacion = document.add_paragraph()
-    parrafo_recomendacion.add_run("Recomendaciones:\n").bold = True
-    parrafo_recomendacion.add_run(recomendacion_text)
-
-    agregar_separador(document)
-
-    # Guardar el documento
-    nombre_archivo = "orden_medica.docx"
-    document.save(nombre_archivo)
+        pdf.multi_cell(0, 8, examenes)
+    pdf.ln(5)
+    pdf.multi_cell(0, 8, "Conclusión:\n" +
+                         respuesta_asistente_medico.get('conclusion', ''))
+    pdf.ln(5)
+    
+    # Nota de advertencia
+    pdf.set_font("Arial", style='I', size=10)
+    pdf.multi_cell(0, 8, "Esta evaluación es una orientación médica que no reemplaza el diagnóstico de un médico.")
+    pdf.ln(5)
+    
+    # Página para exámenes (opcional)
+    pdf.add_page()
+    pdf.ln(30)
+    pdf.set_font("Arial", style='B', size=16)
+    pdf.cell(0, 10, "ORDEN DE EXÁMENES", ln=True, align='C')
+    pdf.ln(10)
+    pdf.set_font("Arial", style='B', size=12)
+    pdf.cell(0, 10, "Exámenes o Procedimientos Médicos Sugeridos:", ln=True)
+    pdf.set_font("Arial", size=12)
+    if isinstance(examenes, list):
+        for examen in examenes:
+            codigo = obtener_codigo_prestacion(examen.get('nombre', ''))
+            pdf.multi_cell(0, 8, f"{examen.get('nombre', '')} (Código: {codigo})", border=1)
+    else:
+        pdf.multi_cell(0, 8, examenes)
+    pdf.ln(20)
+    
+    # Firma médica
+    pdf.cell(0, 10, "____________________", ln=True, align='C')
+    pdf.cell(0, 10, "Firma del Médico", ln=True, align='C')
+    
+    # Generar el nombre del archivo:
+    # - Se extrae el rut y el nombre (eliminando espacios) de datos_paciente
+    # - Se añade la constante OM
+    # - Se agrega la fecha en formato: yyyymmddhhMMssmmm (año, mes, día, hora, minuto, segundo, milisegundos)
+    rut = datos_paciente.get('rut', 'SINRUT')
+    nombre = datos_paciente.get('nombre', 'SINNOMBRE').replace(" ", "")
+    now = datetime.now()
+    fecha_str = now.strftime("%Y%m%d%H%M%S") + f"{now.microsecond//1000:03d}"
+    nombre_archivo = f"{rut}_{nombre}_OM_{fecha_str}.pdf"
+    
+    pdf.output(nombre_archivo)
     print(f"Documento guardado como '{nombre_archivo}'")
     return nombre_archivo
 
+def generar_orden_medica_web(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico):
+    return generar_orden_medica_pdf(openai_client, datos_paciente, sintomas, respuestas_adicionales, base_conocimiento, respuesta_asistente_medico)
 
-def generar_orden_medica_web(
-    openai_client,
-    datos_paciente,
-    sintomas,
-    respuestas_adicionales,
-    base_conocimiento,
-    respuesta_asistente_medico,
-):
-    """
-    Función para entornos web: genera la orden médica usando la función original y devuelve
-    la ruta del archivo generado para que se pueda descargar desde la aplicación web.
-    """
-    archivo = generar_orden_medica(
-        openai_client,
-        datos_paciente,
-        sintomas,
-        respuestas_adicionales,
-        base_conocimiento,
-        respuesta_asistente_medico,
-    )
-    return archivo
-
-
-# Ejemplo de llamada para consola (no se ejecuta en modo web)
 if __name__ == "__main__":
-    # Simulación de datos de entrada para modo escritorio
-    openai_client = None  # Se puede pasar None o un objeto de OpenAI si se requiere
-    datos_paciente = {
-        "nombre": "Juan Pérez",
-        "edad": "35",
-        "peso": "80kg",
-        "rut": "12.345.678-9",
-    }
-    sintomas = "El paciente presenta dolor abdominal, fiebre y náuseas."
-
-    # Ejemplo de respuestas adicionales (puede ser un diccionario o lista de diccionarios)
-    respuestas_adicionales = [
+    generar_orden_medica_pdf(
+        None,
+        {'nombre': 'Juan Pérez', 'edad': '35', 'peso': '80kg', 'rut': '12.345.678-9'},
+        ["Dolor abdominal"],
+        [
+            {'pregunta': '¿Ha presentado fiebre?', 'respuesta': 'Sí, moderada.'},
+            {'pregunta': '¿Ha tenido tos?', 'respuesta': 'No.'},
+            {'pregunta': '¿Sufre de alguna enfermedad crónica?', 'respuesta': 'No.'},
+            {'pregunta': '¿Está tomando algún medicamento?', 'respuesta': 'No.'},
+            {'pregunta': '¿Ha viajado recientemente?', 'respuesta': 'No.'}
+        ],
+        "Base médica",
         {
-            "pregunta": "1. ¿Desde hace cuánto tiempo ha estado experimentando este dolor y cómo describiría su intensidad?",
-            "respuesta": "2 días, intensidad 7/10",
-        },
-        {
-            "pregunta": "2. ¿El dolor es constante o intermitente?",
-            "respuesta": "Constante",
-        },
-        {
-            "pregunta": "3. ¿Ha notado algún cambio en sus hábitos intestinales?",
-            "respuesta": "No",
-        },
-        {
-            "pregunta": "4. ¿Ha experimentado otros síntomas asociados, como vómitos o fiebre?",
-            "respuesta": "Vómitos leves",
-        },
-        {
-            "pregunta": "5. ¿Tiene antecedentes médicos relevantes?",
-            "respuesta": "No",
-        },
-    ]
-
-    base_conocimiento = "Base de datos de conocimiento médico."  # No se utiliza en este ejemplo
-
-    # Ejemplo de respuesta del asistente médico como cadena formateada
-    respuesta_asistente_medico = (
-        "**Análisis de síntomas y factores del paciente:**\n\n"
-        "- **Dolor de cabeza intenso**: Javier ha estado experimentando un dolor de cabeza intenso durante 2 días, con una intensidad de 7 en una escala del 1 al 10. Esto indica un dolor significativo que puede afectar su calidad de vida.\n\n"
-        "- **Desencadenante**: El estrés ha sido identificado como un posible desencadenante del dolor de cabeza, lo que sugiere que podría estar relacionado con una cefalea tensional o una migraña.\n\n"
-        "- **Síntomas asociados**: La presencia de náuseas puede ser un indicativo de que el dolor de cabeza es más severo y podría estar relacionado con una migraña, ya que este síntoma es común en este tipo de cefaleas.\n\n"
-        "- **Antecedentes familiares y personales**: Javier no tiene antecedentes de migrañas o dolores de cabeza recurrentes, lo que puede ser relevante para el diagnóstico.\n\n"
-        "**Posibles diagnósticos:**\n\n"
-        "1. **Migraña**: Dada la intensidad del dolor, la duración, la presencia de náuseas y el desencadenante de estrés, es probable que Javier esté experimentando una migraña.\n\n"
-        "2. **Cefalea tensional**: También es posible que se trate de una cefalea tensional, especialmente si el estrés es un factor significativo.\n\n"
-        "**Recomendaciones:**\n\n"
-        "1. **Medidas de cuidado**:\n"
-        "   - **Descanso**: Asegúrese de descansar en un ambiente oscuro y tranquilo.\n"
-        "   - **Hidratación**: Mantenerse bien hidratado puede ayudar a aliviar el dolor.\n"
-        "   - **Compresas frías**: Aplicar compresas frías en la frente puede proporcionar alivio.\n\n"
-        "2. **Medicamentos**:\n"
-        "   - **Analgésicos de venta libre**: Considerar el uso de analgésicos como el ibuprofeno o el paracetamol, siempre que no tenga contraindicaciones para su uso.\n"
-        "   - **Medicamentos específicos para migraña**: Si el dolor persiste, podría ser útil consultar a un médico para evaluar la posibilidad de prescribir medicamentos específicos para migrañas, como triptanes.\n\n"
-        "3. **Consulta médica**: Si el dolor de cabeza no mejora con las medidas anteriores o si se presentan síntomas adicionales (como cambios en la visión, debilidad o confusión), es importante buscar atención médica inmediata.\n\n"
-        "4. **Manejo del estrés**: Considerar técnicas de manejo del estrés, como la meditación, el yoga o la terapia, para ayudar a prevenir futuros episodios.\n\n"
-        "Dado que la certeza del diagnóstico de migraña es alta, se recomienda seguir estas pautas y buscar atención médica si los síntomas no mejoran."
-    )
-
-    generar_orden_medica(
-        openai_client,
-        datos_paciente,
-        sintomas,
-        respuestas_adicionales,
-        base_conocimiento,
-        respuesta_asistente_medico,
+            'analisis': "Gastroenteritis.",
+            'diagnosticos': "Infección leve.",
+            'recomendaciones': "Reposo e hidratación.",
+            'examenes': [
+                {'nombre': 'Hemograma Completo'},
+                {'nombre': 'Radiografía de Tórax'}
+            ],
+            'conclusion': "Se recomienda seguimiento médico en caso de empeoramiento."
+        }
     )

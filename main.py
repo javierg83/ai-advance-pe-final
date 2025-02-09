@@ -6,6 +6,7 @@ import argparse
 import logging
 import os
 import json
+import re  # Para la función de parseo
 from datetime import timedelta
 
 import openai
@@ -30,11 +31,14 @@ import datosBasicosYSintomas
 import generacionOrdenMedica
 import moderador
 import supervisorMedico
+import funcionesExtras
 
 # Activa traceback para mejorar la depuración de excepciones
 traceback.install()
 
-# Constantes
+# ----------------------------
+# Constantes y configuración
+# ----------------------------
 DURACION_SESION = 7
 """Duración máxima de la sesión en minutos"""
 
@@ -71,7 +75,6 @@ openai.api_key = openai_api_key
 # Definir el objeto openai_client (para evitar posibles conflictos de nombres)
 openai_client = openai
 
-
 # ----------------------------
 # Flujo CLI (Modo Consola)
 # ----------------------------
@@ -97,12 +100,10 @@ def main():
 
     # Paso 4: Uso de moderadores
     if usoModeradores:
-        #categorias_restringidas = moderador.analisis_moderador_generico(
-        #    openai_client, datos_paciente, sintomas, respuestas_adicionales
-        #)
-        resultado, categorias_restringidas = moderador.moderacion_pasada_web(openai_client, datos_paciente, sintomas, respuestas_adicionales)
+        resultado, categorias_restringidas = moderador.moderacion_pasada_web(
+            openai_client, datos_paciente, sintomas, respuestas_adicionales
+        )
         print("Resultado de moderación:", "Aprobado" if resultado else "Rechazado")
-
         if categorias_restringidas:
             print(
                 "MODERADOR GENÉRICO NOK. LO SENTIMOS: TU PREGUNTA NO CUMPLE CON LAS REGLAS ESTABLECIDAS."
@@ -163,7 +164,10 @@ def main():
 
     # Generar la orden médica solo si se cumple la condición adicional
     if usoGeneracionOrdenMedica and nivel_de_certeza >= 70:
-        generacionOrdenMedica.generar_orden_medica(
+        # Se parsea la respuesta si es un string
+        if isinstance(respuesta_asistente_medico, str):
+            respuesta_asistente_medico = funcionesExtras.parse_respuesta_asistente_medico(respuesta_asistente_medico)
+        generacionOrdenMedica.generar_orden_medica_pdf(
             openai_client,
             datos_paciente,
             sintomas,
@@ -184,6 +188,7 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 # Configuramos la duración máxima de la sesión
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=DURACION_SESION)
 
+load_dotenv(override=True)
 
 @app.route("/", methods=["GET", "POST"])
 def registro():
@@ -273,7 +278,6 @@ def preguntas():
             respuesta = request.form.get(f"pregunta_{i}")
             respuestas.append({"pregunta": pregunta, "respuesta": respuesta})
         session["respuestas"] = respuestas
-
         return redirect(url_for("resultado"))
 
     # GET
@@ -372,6 +376,8 @@ def resultado():
         if nivel_de_certeza >= 70:
             
             app.logger.debug("Generación Orden Medica - Iniciando:")
+            if isinstance(respuesta_asistente_medico, str):
+                respuesta_asistente_medico = funcionesExtras.parse_respuesta_asistente_medico(respuesta_asistente_medico)
             orden_filepath = generacionOrdenMedica.generar_orden_medica_web(
                 openai_client,
                 datos,
