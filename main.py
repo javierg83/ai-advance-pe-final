@@ -416,6 +416,15 @@ def download():
         return "No hay archivo disponible para descargar.", 404
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'logo-medium.png',
+        mimetype='image/png'
+    )
+
+
 def Lee_Parametros() -> tuple[bool, int, str]:
     parser = argparse.ArgumentParser(
         description="Atención PrimarIA - App Asistente Médico",
