@@ -35,7 +35,7 @@ Para instalar el **Asistente Médico** en tu entorno local con Python, sigue los
 2. **Crea un entorno virtual (opcional pero recomendado):**
    ```bash
    python -m venv venv
-   venv/bin/activate
+   .venv\Scripts\activate
    ```
 
 3. **Instala las dependencias necesarias:**
