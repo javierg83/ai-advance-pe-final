@@ -21,8 +21,9 @@ Este proyecto es parte del curso **Advanced Prompt Engineering** y tiene como ob
 Para instalar el **Asistente Médico** en tu entorno local con Python, sigue los pasos a continuación.
 
 ### Requisitos previos
-- **Python 3.7+** o superior.
-- **pip**: Gestor de paquetes de Python.
+- **Python 3.10.11** 
+- **Gestor de paquetes pip**
+- **Windows 10 o superior**
 
 ### Pasos de instalación:
 1. **Clona el repositorio:**
