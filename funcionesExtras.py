@@ -25,7 +25,7 @@ def parse_respuesta_asistente_medico(texto: str) -> dict:
         "Exámenes o Procedimientos Médicos Sugeridos": "",
         "Conclusión": ""
     }
-    print("1")
+
     current_key = None
     for line in texto.splitlines():
         line = line.strip()
@@ -39,7 +39,7 @@ def parse_respuesta_asistente_medico(texto: str) -> dict:
         else:
             if current_key:
                 sections[current_key] += line + "\n"
-    print("2")
+
     # Limpiar espacios adicionales
     for key in sections:
         sections[key] = sections[key].strip()
@@ -55,9 +55,6 @@ def parse_respuesta_asistente_medico(texto: str) -> dict:
     if examenes_list:
         sections["Exámenes o Procedimientos Médicos Sugeridos"] = examenes_list
 
-    print("3")
-    print(sections["Análisis de Síntomas y Factores del Paciente"])
-    print("4")
     return {
         "analisis": sections["Análisis de Síntomas y Factores del Paciente"],
         "diagnosticos": sections["Posibles Diagnósticos"],
