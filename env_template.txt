@@ -1,18 +1,16 @@
 # env_template.txt: Template de archivo `.env` para configuraciones de entorno
-# Instrucciones: Renombrar este archivo a `.env` y completar con las keys de las APIs
-
-# Definiciones de entorno para keys de APIs
-
-# Configuraciones para Redis
-REDIS_HOST="XXXXXXXX.redis-cloud.com"
-REDIS_PORT="0"
-REDIS_DB=0
-REDIS_PASSWORD="XXXXXXXXXXXXXXX"
-REDIS_USERNAME="XXXXXXXXX"
-REDIS_INDEX="XXXXXX"
+# Instrucciones: Renombrar este archivo a `.env` y reemplaza los valores con 'X', con tus keys de Acceso a las APIs.
 
 # Configuraciones OpenAI
-GPT_KEY="sk-proj-XXXXXXXX"
+OPENAI_API_KEY="XXXXXXXXXXXXXXXXXXXXXXXX"
+
+# Configuraciones para Redis
+REDIS_HOST="XXXXXXXXXXXXXXXX"
+REDIS_PORT="000"
+REDIS_DB=000
+REDIS_PASSWORD="XXXXXXXXXXXXXXX"
+REDIS_USERNAME="XXXX"
+REDIS_INDEX="XXXXXX"
 
 # Configuraciones para Flask
-FLASK_SECRET_KEY="XXXXXXXXXXXXXXX"
+FLASK_SECRET_KEY="XXXXXXXXXXXXXXXX"
