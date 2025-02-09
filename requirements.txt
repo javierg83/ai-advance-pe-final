@@ -1,4 +1,5 @@
 # Lista de dependencias
+fpdf
 pydantic
 python-docx
 python-dotenv
