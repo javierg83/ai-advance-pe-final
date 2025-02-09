@@ -44,6 +44,9 @@ PUERTO_DEFAULT = 8000
 HOST_DEFAULT = "localhost"
 """Host por defecto para el servidor web de Flask"""
 
+DEBUG_DEFAULT = False
+"""Modo de depuración por defecto"""
+
 # ----------------------------
 # Configuración de Logging
 # ----------------------------
@@ -62,7 +65,9 @@ openai_api_key = os.environ.get("OPENAI_API_KEY")
 if openai_api_key:
     logging.debug("OPENAI_API_KEY cargada correctamente.")
 else:
-    logging.error("OPENAI_API_KEY NO está definida. Revisa el entorno y/o el archivo '.env'.")
+    logging.error(
+        "OPENAI_API_KEY NO está definida. Revisa el entorno y/o el archivo '.env'."
+    )
     exit(1)
 
 # Configurar la API key para la librería de OpenAI
@@ -97,10 +102,12 @@ def main():
 
     # Paso 4: Uso de moderadores
     if usoModeradores:
-        #categorias_restringidas = moderador.analisis_moderador_generico(
+        # categorias_restringidas = moderador.analisis_moderador_generico(
         #    openai_client, datos_paciente, sintomas, respuestas_adicionales
-        #)
-        resultado, categorias_restringidas = moderador.moderacion_pasada_web(openai_client, datos_paciente, sintomas, respuestas_adicionales)
+        # )
+        resultado, categorias_restringidas = moderador.moderacion_pasada_web(
+            openai_client, datos_paciente, sintomas, respuestas_adicionales
+        )
         print("Resultado de moderación:", "Aprobado" if resultado else "Rechazado")
 
         if categorias_restringidas:
@@ -137,15 +144,17 @@ def main():
             sintomas,
             respuestas_adicionales,
             base_conocimiento,
-            respuesta_asistente_medico
+            respuesta_asistente_medico,
         )
-        
+
         # Si la respuesta incluye delimitadores Markdown, eliminarlos.
         if respuesta_supervisor_json.startswith("```"):
             primer_salto = respuesta_supervisor_json.find("\n")
             ultimos_backticks = respuesta_supervisor_json.rfind("```")
             if primer_salto != -1 and ultimos_backticks != -1:
-                respuesta_supervisor_json = respuesta_supervisor_json[primer_salto:ultimos_backticks].strip()
+                respuesta_supervisor_json = respuesta_supervisor_json[
+                    primer_salto:ultimos_backticks
+                ].strip()
 
         # Parsear la respuesta JSON para obtener el nivel de certeza
         try:
@@ -159,7 +168,6 @@ def main():
             nivel_de_certeza = 0
 
         print("El nivel de certeza es:", nivel_de_certeza)
-        
 
     # Generar la orden médica solo si se cumple la condición adicional
     if usoGeneracionOrdenMedica and nivel_de_certeza >= 70:
@@ -172,7 +180,9 @@ def main():
             respuesta_asistente_medico,
         )
     else:
-        print("Estimado paciente, con la información entregada no podemos generar una recomendación médica, por lo que debe asistir a un centro asistencial de forma presencial.")
+        print(
+            "Estimado paciente, con la información entregada no podemos generar una recomendación médica, por lo que debe asistir a un centro asistencial de forma presencial."
+        )
 
 
 # ----------------------------
@@ -297,10 +307,7 @@ def resultado():
 
     # Paso 1: Moderación (ejemplo con moderador_pasada_web)
     moderacion_ok, categorias = moderador.moderacion_pasada_web(
-        openai_client,
-        datos,
-        sintomas,
-        respuestas
+        openai_client, datos, sintomas, respuestas
     )
 
     # Variables iniciales
@@ -311,27 +318,24 @@ def resultado():
     orden_filepath = ""
 
     if not moderacion_ok:
-        
         # Si la moderación falla, se puede notificar al usuario y detener el flujo
         app.logger.debug(
-            "La consulta no cumple con las normas de moderación. Categorías detectadas: " +
-            ", ".join(categorias)
+            "La consulta no cumple con las normas de moderación. Categorías detectadas: "
+            + ", ".join(categorias)
         )
-        
         respuesta_asistente_medico = "Consulta rechazada por moderación."
     else:
-        
         # Paso 2: Búsqueda en base de conocimiento
         base_conocimiento = consultaBaseConocimiento.busqueda_base_conocimiento(
             openai_client, sintomas, respuestas
         )
-        
+
         # Paso 3: Recomendación médica web
         app.logger.debug("Asistente Medico Iniciando")
         respuesta_asistente_medico = asistenteMedico.realizar_recomendacion_medica_web(
             openai_client, datos, sintomas, respuestas, base_conocimiento
         )
-        
+
         # Paso 4: Llamada al Supervisor Médico para validar la recomendación
         app.logger.debug("Analisis de Supervisor Medico")
         supervisor_response = supervisorMedico.revision_recomendacion_medica(
@@ -340,37 +344,37 @@ def resultado():
             sintomas,
             respuestas,
             base_conocimiento,
-            respuesta_asistente_medico
+            respuesta_asistente_medico,
         )
-        
-        
+
         # Eliminar delimitadores Markdown, si existen
-        
+
         if supervisor_response.startswith("```"):
             primer_salto = supervisor_response.find("\n")
             ultimos_backticks = supervisor_response.rfind("```")
             if primer_salto != -1 and ultimos_backticks != -1:
-                supervisor_response = supervisor_response[primer_salto:ultimos_backticks].strip()
-        
+                supervisor_response = supervisor_response[
+                    primer_salto:ultimos_backticks
+                ].strip()
+
         # Parsear la respuesta JSON para extraer el nivel de certeza
         try:
             if isinstance(supervisor_response, str):
-                
                 data = json.loads(supervisor_response)
             else:
-                
                 data = supervisor_response
             nivel_de_certeza = data.get("nivel_de_certeza", 0)
+
         except json.JSONDecodeError as e:
-            
             app.logger.error("Error al parsear la respuesta JSON: " + str(e))
             nivel_de_certeza = 0
 
-        app.logger.debug("Supervisor Medico - El nivel de certeza es: " + str(nivel_de_certeza))
-        
+        app.logger.debug(
+            "Supervisor Medico - El nivel de certeza es: " + str(nivel_de_certeza)
+        )
+
         # Paso 5: Generación de la orden médica solo si el nivel de certeza es mayor a 80
         if nivel_de_certeza >= 70:
-            
             app.logger.debug("Generación Orden Medica - Iniciando:")
             orden_filepath = generacionOrdenMedica.generar_orden_medica_web(
                 openai_client,
@@ -381,14 +385,13 @@ def resultado():
                 respuesta_asistente_medico,
             )
         else:
-            
             # Se puede notificar al paciente que, con la información entregada, no se genera orden médica.
             respuesta_asistente_medico += (
                 "\nEstimado paciente, con la información entregada no podemos generar una recomendación médica, "
                 "por lo que debe asistir a un centro asistencial de forma presencial."
             )
-            app.logger.debug("respuesta_asistente_medico="+respuesta_asistente_medico)
-        
+            app.logger.debug("respuesta_asistente_medico=" + respuesta_asistente_medico)
+
     session["orden_filepath"] = orden_filepath
 
     return render_template(
@@ -399,7 +402,7 @@ def resultado():
         respuesta_asistente_medico=respuesta_asistente_medico,
         orden_filepath=orden_filepath,
         nivel_de_certeza=nivel_de_certeza,
-        supervisor_response=supervisor_response
+        supervisor_response=supervisor_response,
     )
 
 
@@ -415,14 +418,14 @@ def download():
 
 def Lee_Parametros() -> tuple[bool, int, str]:
     parser = argparse.ArgumentParser(
-        description="App Asistente Médico",
+        description="Atención PrimarIA - App Asistente Médico",
         add_help=True,
     )
     parser.add_argument(
         "--runserver",
         action="store_true",
         default=False,
-        help="Ejecutar el servidor web de Flask; sino, se ejecuta en modo consola.",
+        help="Ejecutar el Servidor Web Flask; sino, se ejecuta en modo Consola.",
     )
     parser.add_argument(
         "--port",
@@ -437,18 +440,25 @@ def Lee_Parametros() -> tuple[bool, int, str]:
         required=False,
         help=f"Host para el servidor web de Flask, default: {HOST_DEFAULT}.",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=DEBUG_DEFAULT,
+        required=False,
+        help=f"Activar el modo de depuración de Flask, default: {DEBUG_DEFAULT}.",
+    )
     args = parser.parse_args()
 
-    return args.runserver, args.port, args.host
+    return args.runserver, args.port, args.host, args.debug
 
 
 # ----------------------------
 # Selección del Modo de Ejecución
 # ----------------------------
 if __name__ == "__main__":
-    run_server, port, host = Lee_Parametros()
+    run_server, flask_server_port, flask_host, is_debug_mode = Lee_Parametros()
     if run_server:
-        app.run(host=host, port=port, debug=True, load_dotenv=True)
+        app.run(host=flask_host, port=flask_server_port, debug=is_debug_mode, load_dotenv=True)
     else:
         main()
 

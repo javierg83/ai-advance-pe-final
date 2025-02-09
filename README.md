@@ -1,6 +1,6 @@
 # Asistente Médico Virtual - Atención PrimarIA
 
-![Atención PrimarIA](static/logo-medium.png)
+![Atención PrimarIA](static/logo.png)
 
 Este repositorio contiene el código fuente para un **Asistente Médico basado en Inteligencia Artificial**. El sistema permite la interacción con un paciente, recogiendo sus datos personales, síntomas y realizando una recomendación médica a través de una IA, junto con la generación de una orden médica.
 
@@ -8,13 +8,14 @@ Este repositorio contiene el código fuente para un **Asistente Médico basado e
 
 Este proyecto es parte del curso **Advanced Prompt Engineering, de la escuela de Ingeniería de la Universidad Adolfo Ibáñez** y tiene como objetivo demostrar la integración de modelos de lenguaje, uso de asistentes, moderación de contenido y generación de recomendaciones médicas en un entorno en producción.
 
-### Tabla de Contenidos
+## Tabla de Contenidos
 
 - [Instalación](#instalación)
 - [Uso](#uso)
 - [Modo de Ejecución](#modo-de-ejecución)
-   1. [**Modo Web (Flask)**](#1-modo-web-flask)
-   2. [**Modo Consola**](#2-modo-consola)
+   1. [*Modo Web (Flask)*](#1-modo-web-flask)
+   2. [*Modo Consola*](#2-modo-consola)
+- [Detalle de parámetros](#detalle-de-parámetros)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Licencia](#licencia)
 
@@ -52,6 +53,26 @@ Para ejecutar el asistente en modo consola, donde el usuario interactúa a trav�
 
 ```powershell
 python main.py
+```
+
+## Detalle de parámetros
+
+Para revisar el detalle de parámetros del programa en la versión actual, ejecutar con opción `--help`.
+
+A modo de ejemplo la salida es:
+
+```powershell
+python main.py --help
+usage: main.py [-h] [--runserver] [--port PORT] [--host HOST] [--debug]
+
+Atención PrimarIA - App Asistente Médico
+
+options:
+  -h, --help   show this help message and exit
+  --runserver  Ejecutar el Servidor Web Flask; sino, se ejecuta en modo Consola.
+  --port PORT  Puerto para el servidor web de Flask, default: 8000.
+  --host HOST  Host para el servidor web de Flask, default: localhost.
+  --debug      Activar el modo de depuración de Flask, default: False.
 ```
 
 ## Estructura del Proyecto
