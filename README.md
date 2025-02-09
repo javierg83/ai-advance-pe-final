@@ -28,8 +28,8 @@ Para instalar el **Asistente Médico** en tu entorno local con Python, sigue los
 ### Pasos de instalación:
 1. **Clona el repositorio:**
    ```bash
-   git clone https://github.com/usuario/asistenteMedico.git
-   cd asistenteMedico
+   git clone 'https://github.com/javierg83/ai-advance-pe-final.git'
+   cd ai-advance-pe-final
    ```
 
 2. **Crea un entorno virtual (opcional pero recomendado):**
